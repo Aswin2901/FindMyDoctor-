@@ -1,0 +1,5 @@
+virtual/
+node_modules/
+findmydoctor-frontend/node_modules/
+findmydoctor-frontend/node_modules/.cache/
+C:\Users\USER\Desktop\Find my Doctor\findmydoctor\.env

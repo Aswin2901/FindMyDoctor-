@@ -1,0 +1,156 @@
+.dashboard-container {
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.dashboard-header {
+    padding: 20px;
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+.dashboard-logo {
+    width: 150px;
+}
+
+.dashboard-main {
+    display: flex;
+    margin-top: 20px;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.menu-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+}
+
+.menu-item {
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover,
+.menu-item.active {
+    background-color: #e0f7fa;
+    border-left: 4px solid #03a9f4;
+}
+
+.menu-item.logout {
+    color: red;
+    font-weight: bold;
+}
+
+.dashboard-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.categories {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.category-card {
+    background-color: #e0f7fa;
+    padding: 20px;
+    text-align: center;
+    border-radius: 8px;
+    width: 22%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.category-card h3 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.new-doctors {
+    margin-top: 20px;
+}
+
+.new-doctors h4 {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.doctor-card {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-card img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.doctor-info h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.dashboard-footer {
+    background-color: #f5f5f5;
+    padding: 20px;
+    text-align: center;
+}
+
+.dashboard-footer p {
+    margin: 10px 0;
+}
+
+.highlight {
+    color: red;
+}
+
+.footer-icons {
+    margin: 15px 0;
+}
+
+.footer-icons i {
+    font-size: 24px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+.footer-contact {
+    margin-top: 20px;
+    color: #777;
+}
+
+.footer-links {
+    margin-top: 10px;
+}
+
+.footer-links a {
+    color: #777;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.footer-links a:hover {
+    color: #333;
+}

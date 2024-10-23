@@ -1,0 +1,71 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Spread items across the navbar */
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #e0ebf5; /* Background similar to the image */
+    border-bottom: 1px solid #ccc;
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-logo img {
+    width: 50px; /* Adjust the size as necessary */
+    margin-right: 10px;
+}
+
+.navbar-logo span {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+}
+
+.navbar-logo .highlight {
+    color: #ff3b3f; /* Red color for "MY" */
+}
+
+/* Align navbar links to the right */
+.navbar-links {
+    display: flex;
+    list-style: none;
+    margin-left: auto; /* Push the links to the right side */
+}
+
+.navbar-links li {
+    margin: 0 15px;
+}
+
+.navbar-links a {
+    text-decoration: none;
+    font-size: 18px;
+    color: #000;
+    font-weight: bold;
+}
+
+/* Ensure the profile icon is visible */
+.navbar-user-icon {
+    font-size: 24px;
+    margin-left: 20px; /* Add some space between links and icon */
+}
+
+.navbar-user-icon a {
+    color: #000;
+    text-decoration: none;
+}
+
+.navbar-user-icon i {
+    font-size: 28px;
+}

@@ -1,0 +1,211 @@
+/* General Container */
+.home-container {
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  overflow-x: hidden;
+}
+
+
+/* Hero Section */
+.hero-section {
+  height: 85vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 1s ease-in-out;
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 0;
+}
+
+.hero-content {
+  text-align: center;
+  color: #fff;
+  z-index: 1;
+  position: relative;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-content span {
+  color: #ff5252;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Reduced space between buttons */
+  margin-top: 30px;
+}
+
+.button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px; /* Smaller padding */
+  border-radius: 10px; /* Reduced border radius */
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  width: 100px;  /* Smaller width */
+  height: 100px; /* Smaller height */
+}
+
+.button p {
+  font-size: 0.7rem; 
+  font-weight: bold;
+  margin-top: 5px; 
+  color: white;
+}
+
+.icon {
+  font-size: 1.8rem; 
+  color: white;
+}
+
+/* Different Styles for Each Button */
+.search-button {
+  background-color: #ff5252; /* Red */
+}
+
+.search-button:hover {
+  background-color: #e53935;
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.appointment-button {
+  background-color: #42a5f5; /* Blue */
+}
+
+.appointment-button:hover {
+  background-color: #1e88e5;
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.profile-button {
+  background-color: #66bb6a; /* Green */
+}
+
+.profile-button:hover {
+  background-color: #43a047;
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Info Section */
+.info-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.info-section:hover {
+  background-color: #e3f2fd;
+}
+
+.info-text {
+  max-width: 500px;
+}
+
+.info-text h2 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.info-text span {
+  color: #ff5252;
+}
+
+.book-now-btn {
+  background-color: #ff5252;
+  color: #fff;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.book-now-btn:hover {
+  background-color: #e53935;
+}
+
+.info-image img {
+  max-width: 450px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+.footer {
+  background-color: #212121;
+  color: #fff;
+  padding: 30px 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.footer p {
+  margin: 0;
+  color: #b0bec5;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .info-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .info-image {
+    margin-top: 20px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .button {
+    width: 80px;
+    height: 80px;
+  }
+
+  .button p {
+    font-size: 0.9rem;
+  }
+
+  .icon {
+    font-size: 1.5rem;
+  }
+}
