@@ -25,11 +25,11 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15)
-    gender = models.CharField(max_length=10)
-    date_of_birth = models.DateField()
-    state = models.CharField(max_length=50)
-    address = models.TextField()
+    phone = models.CharField(max_length=15 , null=True)
+    gender = models.CharField(max_length=10 , null=True)
+    date_of_birth = models.DateField(null=True)
+    state = models.CharField(max_length=50 , null=True)
+    address = models.TextField(null=True)
 
     # Add these fields for permissions
     is_staff = models.BooleanField(default=False)

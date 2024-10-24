@@ -15,60 +15,11 @@ from social_django.utils import psa
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import Flow
-
-
-# Function to initiate Google OAuth login
-@api_view(['GET'])
-def google_login(request):
-    auth_url = f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}&redirect_uri=http://localhost:3000/oauth/callback/&scope=email profile'
-    return Response({'auth_url': auth_url})
-
-
-# Function to handle Google OAuth callback and exchange code for access token
-from google_auth_oauthlib.flow import Flow
-from google.auth.transport.requests import Request
 import requests
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
-@api_view(['GET'])
-def google_callback(request):
-    # Get the authorization code from the URL
-    code = request.GET.get('code')
-    
-    if not code:
-        return Response({'error': 'Authorization code not provided'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        # Initialize the OAuth 2.0 flow with the client secrets file
-        flow = Flow.from_client_secrets_file(
-            os.getenv('path_to_client_secret_json'),  
-            scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
-            redirect_uri='http://localhost:3000/oauth/callback/'  # Ensure it matches the Google Console redirect URI
-        )
-        
-        # Exchange the authorization code for an access token
-        flow.fetch_token(code=code)
-        credentials = flow.credentials
-        access_token = credentials.token
-        
-        # Retrieve user information from Google using the access token
-        user_info_endpoint = 'https://www.googleapis.com/oauth2/v2/userinfo'
-        response = requests.get(user_info_endpoint, headers={'Authorization': f'Bearer {access_token}'})
-        user_info = response.json()
-        
-        # Example: Use the user info here (e.g., create or login user)
-        # You can extract email, name, and other details from `user_info`
-        print('response sent !!!!!!')
-        return Response({'access_token': access_token, 'user_info': user_info, 'message': 'Google OAuth login successful'})
-
-    except Exception as e:
-        # Handle any errors during the token exchange or user info retrieval
-        return Response({'error': f"An error occurred: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+from .models import User
 
 
 
@@ -143,3 +94,68 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 'gender': request.data.get('gender'),
             }
         })
+
+
+
+# Function to initiate Google OAuth login
+@api_view(['GET'])
+def google_login(request):
+    auth_url = f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}&redirect_uri=http://localhost:3000/oauth/callback/&scope=email profile'
+    return Response({'auth_url': auth_url})
+
+
+
+@api_view(['GET'])
+def google_callback(request):
+    code = request.GET.get('code')
+
+    if not code:
+        return Response({'error': 'Authorization code not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Exchange the authorization code for tokens and user info
+        flow = Flow.from_client_secrets_file(
+            os.getenv('path_to_client_secret_json'),
+            scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
+            redirect_uri='http://localhost:3000/oauth/callback/'
+        )
+        
+        flow.fetch_token(code=code)
+        credentials = flow.credentials
+        access_token = credentials.token
+
+        # Get user info from Google
+        user_info_endpoint = 'https://www.googleapis.com/oauth2/v2/userinfo'
+        response = requests.get(user_info_endpoint, headers={'Authorization': f'Bearer {access_token}'})
+        user_info = response.json()
+
+        email = user_info['email']
+        full_name = user_info.get('name', '')
+        gender = user_info.get('gender', 'Not specified')  
+        
+        print(email , full_name , gender)
+
+        # Check if the user already exists
+        try:
+            user = User.objects.get(email=email)
+            if user:
+                return Response({'access_token': access_token, 'user_info': user_info, 'message': 'Google OAuth login successful'})    
+            
+
+        except User.DoesNotExist:
+            user = User.objects.create(
+                email=email,
+                full_name=full_name,
+                
+            )
+            user.set_unusable_password()  
+            user.save()
+            print('user saved')
+
+
+            return Response({'access_token': access_token, 'user_info': user_info, 'message': 'Google OAuth login successful'})
+
+    except Exception as e:
+        return Response({'error': f"An error occurred: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
