@@ -77,7 +77,7 @@ const DoctorLogin = () => {
           </form>
 
           <div className="login-links">
-            <Link to='/doctorsignup'>Don't have an account? Sign up here</Link><br />
+            <Link to='/doctorsignup'>Don't have an account?</Link><br />
             <Link to='/'>Go to user login</Link>
           </div>
         </div>

@@ -9,6 +9,7 @@
   min-height: 100vh;
 }
 
+/* Login form container */
 .login-form {
   background-color: #ffffff;
   padding: 40px;
@@ -26,7 +27,7 @@
   color: #333;
 }
 
-/* Style for form inputs */
+/* Form input fields */
 .login-form input {
   width: 100%;
   padding: 12px;
@@ -38,16 +39,7 @@
   transition: border-color 0.3s ease;
 }
 
-/* Add label styles */
-.login-form label {
-  display: block;
-  font-size: 14px;
-  text-align: left;
-  margin-bottom: 5px;
-  color: #333;
-  font-weight: bold;
-}
-
+/* Form input focus state */
 .login-form input:focus {
   border-color: #007bff;
   outline: none;
@@ -55,7 +47,7 @@
 
 /* Login button styling */
 .login-form .login-button {
-  width: 100px;
+  width: 100%;
   padding: 12px;
   background-color: #e74c3c; /* Red color */
   color: #fff;
@@ -71,24 +63,6 @@
   background-color: #c0392b; /* Darker red on hover */
 }
 
-.login-links {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.login-links p {
-  font-size: 14px;
-  margin: 5px 0;
-  cursor: pointer;
-  color: #e74c3c;
-  font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-.login-links p:hover {
-  color: #c0392b; /* Darker red on hover */
-}
-
 /* Success and error message styling */
 .success-message {
   color: green;
@@ -100,6 +74,59 @@
   color: red;
   font-weight: bold;
   margin-bottom: 15px;
+}
+
+/* Google login button */
+.google-login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4285f4;
+  color: white;
+  padding: 12px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* On hover, the Google button gets a darker blue */
+.google-login-button:hover {
+  background-color: #357ae8;
+}
+
+/* Google button icon and text alignment */
+.google-login-button img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.google-login-button span {
+  font-size: 14px;
+}
+
+/* Links below the form */
+.login-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.login-links a {
+  color: #e74c3c;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.login-links a:hover {
+  color: #c0392b; /* Darker red on hover */
 }
 
 /* Responsive design for smaller screens */

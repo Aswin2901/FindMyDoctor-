@@ -83,13 +83,14 @@ const Login = () => {
             <button type="submit" className="login-button">LOGIN</button>
           </form>
           <div className="login-links">
-            <Link to='/'>Don't have an account?</Link>
+            <Link to='/signup'>Don't have an account?</Link>
           </div>
         </div>
 
         {/* Google Login Button */}
         <button onClick={handleGoogleLogin} className="google-login-button">
-          Login with Google
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="Google logo" />
+          <span>Login with Google</span>
         </button>
       </div>
       <Footer />

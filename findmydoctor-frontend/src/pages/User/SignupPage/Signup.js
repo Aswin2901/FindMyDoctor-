@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Signup.css';
+import Navbar from '../../../components/Navbar/Navbar';
+import Footer from '../../../components/Footer/Footer';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -52,64 +54,73 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup-container">
-      {/* Display Error Messages */}
-      {errorMessages && <div className="error-message">{errorMessages}</div>}
-      
-      {/* Signup form */}
-      {!otpSent ? (
-        <form onSubmit={handleSubmit} className="signup-form">
-          <h2>Sign Up</h2>
-          <label>
-            Full Name:
-            <input type="text" name="full_name" value={formData.full_name} onChange={handleChange} required />
-          </label>
-          <label>
-            Email:
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-          </label>
-          <label>
-            Phone:
-            <input type="text" name="phone" value={formData.phone} onChange={handleChange} required />
-          </label>
-          <label>
-            Gender:
-            <select name="gender" value={formData.gender} onChange={handleChange} required>
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </label>
-          <label>
-            Date of Birth:
-            <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} required />
-          </label>
-          <label>
-            State:
-            <input type="text" name="state" value={formData.state} onChange={handleChange} required/>
-          </label>
-          <label>
-            Address:
-            <input type="text" name="address" value={formData.address} onChange={handleChange} required/>
-          </label>
-          <label>
-            Password:
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-          </label>
-          <label>
-            Confirm Password:
-            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
-          </label>
-          <button type="submit" className="signup-button">SIGN UP</button>
-        </form>
-      ) : (
-        <form onSubmit={handleOtpSubmit} className="otp-form">
-          <h2>Enter OTP</h2>
-          <label>OTP:</label>
-          <input type="text" name="otp" value={otp} onChange={handleOtpChange} required />
-          <button type="submit" className="otp-button">VERIFY OTP</button>
-        </form>
-      )}
+    <div>
+      <Navbar/>
+    
+      <div className="signup-container">
+        {/* Display Error Messages */}
+        {errorMessages && <div className="error-message">{errorMessages}</div>}
+        
+        {/* Signup form */}
+        {!otpSent ? (
+          <form onSubmit={handleSubmit} className="signup-form">
+            <h2>Sign Up</h2>
+            <label>
+              Full Name:
+              <input type="text" name="full_name" value={formData.full_name} onChange={handleChange} required />
+            </label>
+            <label>
+              Email:
+              <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+            </label>
+            <label>
+              Phone:
+              <input type="text" name="phone" value={formData.phone} onChange={handleChange} required />
+            </label>
+            <label>
+              Gender:
+              <select name="gender" value={formData.gender} onChange={handleChange} required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </label>
+            <label>
+              Date of Birth:
+              <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} required />
+            </label>
+            <label>
+              State:
+              <input type="text" name="state" value={formData.state} onChange={handleChange} required/>
+            </label>
+            <label>
+              Address:
+              <input type="text" name="address" value={formData.address} onChange={handleChange} required/>
+            </label>
+            <label>
+              Password:
+              <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+            </label>
+            <label>
+              Confirm Password:
+              <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
+            </label>
+            <button type="submit" className="signup-button">SIGN UP</button>
+            <div className="signup-links">
+              <Link to='/'>Already have an account?</Link><br />
+              <Link to='/doctorlogin'>Sign up as a Doctor</Link>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleOtpSubmit} className="otp-form">
+            <h2>Enter OTP</h2>
+            <label>OTP:</label>
+            <input type="text" name="otp" value={otp} onChange={handleOtpChange} required />
+            <button type="submit" className="otp-button">VERIFY OTP</button>
+          </form>
+        )}
+      </div>
+      <Footer/>
     </div>
   );
 };
