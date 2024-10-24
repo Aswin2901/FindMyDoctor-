@@ -50,3 +50,8 @@ class DoctorLoginSerializer(serializers.Serializer):
         # Return the validated doctor data if everything is correct
         return doctor
 
+
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ['full_name', 'email', 'phone', 'gender', 'created_at']

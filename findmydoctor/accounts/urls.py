@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import register_user ,verify_otp , CustomTokenObtainPairView , google_callback , google_login
+from .views import register_user ,verify_otp , CustomTokenObtainPairView , google_callback , google_login , all_users
 
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('oauth/login/', google_login , name='google_login'),
     path('oauth/callback/', google_callback, name='google_callback'),
+    path('all/' , all_users , name='all_users'),
 ]

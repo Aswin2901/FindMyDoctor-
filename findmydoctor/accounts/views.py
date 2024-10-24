@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer
+from .serializers import UserSerializer , AllUserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
@@ -161,3 +161,9 @@ def google_callback(request):
         return Response({'error': f"An error occurred: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
     
 
+
+@api_view(['GET'])
+def all_users(request):
+    users = User.objects.all()
+    serializer = AllUserSerializer(users, many=True)
+    return Response(serializer.data)

@@ -1,8 +1,10 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import DoctorSignupSerializer , DoctorLoginSerializer
+from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer
 from rest_framework.decorators import api_view
+from .models import Doctor
+from django.http import JsonResponse
 
 @api_view(['POST'])
 def doctor_signup(request):
@@ -26,3 +28,15 @@ def doctor_login(request):
         # Print or log validation errors to debug
         print(serializer.errors)  # This will print errors in your console/log
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+
+@api_view(['GET'])
+def recent_doctors(request):
+    doctors = Doctor.objects.order_by('-created_at')[:3]
+    serializer = DoctorSerializer(doctors, many=True)
+    return Response(serializer.data)
+
+def get_all_doctors(request):
+    doctors = Doctor.objects.all().values('id', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'state', 'address', 'profile_picture')
+    return JsonResponse(list(doctors), safe=False)
