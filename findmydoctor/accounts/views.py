@@ -85,6 +85,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         except AuthenticationFailed as e:
             return Response({'error': str(e)}, status=400)
 
+        print('response 1111111111111111111')
+        print(request.data)
         return Response({
             'access': response.data['access'],
             'refresh': response.data['refresh'],

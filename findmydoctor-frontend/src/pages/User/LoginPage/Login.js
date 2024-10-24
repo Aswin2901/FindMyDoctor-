@@ -33,8 +33,14 @@ const Login = () => {
 
       setSuccessMessage('Login successful! Redirecting...');
       setErrorMessage('');
+      
+      if (response.data.is_superuser) {
+        setTimeout(() => navigate('/admin/dashboard'), 2000)
+      } else {
+        setSuccessMessage('Login successful! Redirecting...');
+        setTimeout(() => navigate('/home'), 2000);
+      }
 
-      setTimeout(() => navigate('/home'), 2000);
     } catch (error) {
       console.error('Login error:', error.response ? error.response.data : error.message);
       setErrorMessage('Invalid email or password!');
