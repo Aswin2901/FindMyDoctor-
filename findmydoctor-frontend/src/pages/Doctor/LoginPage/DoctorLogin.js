@@ -34,8 +34,9 @@ const DoctorLogin = () => {
       // Store the token in localStorage
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
+      localStorage.setItem('doctor_id', response.data.doctor_id);
 
-      // Navigate to the doctor dashboard after successful login
+
       navigate('/doctordashboard');
     } catch (error) {
       console.error('Login error:', error.response ? error.response.data : error.message);
