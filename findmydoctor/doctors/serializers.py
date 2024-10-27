@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Doctor
+from .models import Doctor , Verification
 from django.contrib.auth.hashers import make_password , check_password
 from rest_framework import serializers
 
@@ -55,3 +55,26 @@ class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = ['full_name', 'email', 'phone', 'gender', 'created_at']
+        
+
+class VerificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Verification
+        fields = [
+            'doctor',
+            'id_proof',
+            'medical_license',
+            'degree_certificate',
+            'license_number',
+            'issuing_authority',
+            'license_expiry_date',
+            'medical_registration',
+            'verification_date',
+        ]
+        extra_kwargs = {
+            'doctor': {'required': True},
+        }
+
+    def create(self, validated_data):
+        verification = Verification.objects.create(**validated_data)
+        return verification

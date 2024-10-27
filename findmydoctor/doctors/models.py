@@ -20,15 +20,19 @@ class Doctor(models.Model):
 
 
 class Verification(models.Model):
-    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, related_name='verification')
-    id_proof = models.FileField(upload_to='verification/id_proofs/', null=True, blank=True)
-    medical_license = models.FileField(upload_to='verification/medical_licenses/', null=True, blank=True)
-    degree_certificate = models.FileField(upload_to='verification/degree_certificates/', null=True, blank=True)
-    license_number = models.CharField(max_length=50, null=True, blank=True)
-    issuing_authority = models.CharField(max_length=100, null=True, blank=True)
-    license_expiry_date = models.DateField(null=True, blank=True)
-    medical_registration = models.CharField(max_length=100, null=True, blank=True)
-    verification_date = models.DateTimeField(null=True, blank=True)
+    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE)  # Assuming a User model for doctors
+    qualification = models.CharField(max_length=255 , null=True)
+    specialty = models.CharField(max_length=255)
+    experience = models.IntegerField()
+    hospital = models.CharField(max_length=255)
+    clinic = models.CharField(max_length=255, null=True)
+    license = models.CharField(max_length=255)
+    issuing_authority = models.CharField(max_length=255)
+    expiry_date = models.DateField()
+    medical_registration = models.CharField(max_length=255)
+    id_proof = models.FileField(upload_to='documents/')
+    medical_license = models.FileField(upload_to='documents/')
+    degree_certificate = models.FileField(upload_to='documents/')
 
     def __str__(self):
-        return f"Verification for {self.doctor.full_name}"
+        return f"{self.doctor.email}'s Verification"

@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer
+from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer , VerificationSerializer
 from rest_framework.decorators import api_view
 from .models import Doctor , Verification
 from django.http import JsonResponse
@@ -40,6 +40,8 @@ def recent_doctors(request):
 def get_all_doctors(request):
     doctors = Doctor.objects.all().values('id', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'state', 'address', 'profile_picture')
     return JsonResponse(list(doctors), safe=False)
+
+
 @api_view(['GET'])
 def doctor_verification_status(request, doctor_id):
     print(doctor_id)
@@ -52,3 +54,36 @@ def doctor_verification_status(request, doctor_id):
         return Response(response_data, status=status.HTTP_200_OK)
     except Doctor.DoesNotExist:
         return Response({"error": "Doctor verification status not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+@api_view(['POST'])
+def doctor_verification(request, doctor_id):
+    try:
+        doctor = Doctor.objects.get(id = doctor_id)
+        print("Request Data:", request.data)
+        print("Request Files:", request.FILES)
+        
+        verification_data = {
+            'doctor': doctor,  
+            'qualification' : request.data.get('qualification'),
+            'specialty': request.data.get('specialty'),
+            'experience': request.data.get('experience'),
+            'hospital': request.data.get('hospital'),
+            'clinic': request.data.get('clinic'),
+            'license': request.data.get('license'),
+            'issuing_authority': request.data.get('issuing_authority'),
+            'expiry_date': request.data.get('expiry_date'),
+            'medical_registration': request.data.get('medical_registration'),
+            'id_proof': request.FILES['idProof'],
+            'medical_license': request.FILES['medicalLicense'],
+            'degree_certificate': request.FILES['degreeCertificate'],
+        }
+        
+        verification = Verification.objects.create(**verification_data)
+        doctor.form_submitted = True
+        doctor.save()
+        return Response({'message': 'Verification submitted successfully'}, status=status.HTTP_201_CREATED)
+    
+    except Exception as e:
+        print(e)
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
