@@ -10,6 +10,7 @@ const Dashboard = () => {
     const [usersList, setUsersList] = useState([]);
     const [activeSection, setActiveSection] = useState('dashboard');
     const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const [errorMessage, setErrorMessage] = useState(''); // New state for error message
 
     useEffect(() => {
         const fetchRecentDoctors = async () => {
@@ -44,6 +45,7 @@ const Dashboard = () => {
     const handleMenuClick = (section) => {
         setActiveSection(section);
         setSelectedDoctor(null);
+        setErrorMessage(''); // Reset error message on section change
         if (section === 'doctors') {
             fetchDoctorsList();
         } else if (section === 'users') {
@@ -55,8 +57,13 @@ const Dashboard = () => {
         try {
             const response = await axios.get(`http://localhost:8000/doctors/review/${doctorId}/`);
             setSelectedDoctor(response.data);
+            setErrorMessage(''); // Clear error message if successful
         } catch (error) {
-            console.error('Error fetching doctor verification details:', error);
+            if (error.response && error.response.status === 404) {
+                setErrorMessage('Doctor has not submitted the required documents.');
+            } else {
+                console.error('Error fetching doctor verification details:', error);
+            }
         }
     };
 
@@ -73,6 +80,7 @@ const Dashboard = () => {
 
     const handleCancelVerification = () => {
         setSelectedDoctor(null);
+        setErrorMessage(''); // Reset error message when canceling
     };
 
     return (
@@ -163,6 +171,12 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {errorMessage && (
+                        <div className="error-message">
+                            <p>{errorMessage}</p>
                         </div>
                     )}
 

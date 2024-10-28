@@ -7,7 +7,6 @@ import Home from './pages/User/HomePage/Home';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import VerificationForm from './pages/Doctor/VarificationForm/VerificationForm';
-import DocumentVerificationForm from './pages/Doctor/DocumentVarification.js/DocumentVarificationForm';
 import DoctorSignup from './pages/Doctor/Signup/DoctorSignup';
 import DoctorLogin from './pages/Doctor/LoginPage/DoctorLogin';
 import DoctorDashboard from './pages/Doctor/Dashboard/DoctorDashboard';
@@ -26,7 +25,6 @@ function App() {
           <Route path="/doctorlogin" element={<DoctorLogin />} />
           <Route path="/doctordashboard" element={<DoctorDashboard />} />
           <Route path="/profilevarification" element={<VerificationForm />} />
-          <Route path="/documentvarification" element={<DocumentVerificationForm />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/oauth/callback" element={<GoogleCallback />} /> 
         </Routes>
