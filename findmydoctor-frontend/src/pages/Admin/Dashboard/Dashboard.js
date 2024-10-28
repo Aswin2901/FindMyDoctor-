@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './Dashboard.css';
+import './Dashboard.css'; 
 import Footer from '../../../components/Footer/Footer';
 import Navbar from '../../../components/Navbar/Navbar';
+import ProfileIcon from '../../../Images/profile-icon.png';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirect
 
 const Dashboard = () => {
     const [recentDoctors, setRecentDoctors] = useState([]);
@@ -10,7 +12,8 @@ const Dashboard = () => {
     const [usersList, setUsersList] = useState([]);
     const [activeSection, setActiveSection] = useState('dashboard');
     const [selectedDoctor, setSelectedDoctor] = useState(null);
-    const [errorMessage, setErrorMessage] = useState(''); // New state for error message
+    const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate(); // Initialize navigate function
 
     useEffect(() => {
         const fetchRecentDoctors = async () => {
@@ -45,7 +48,7 @@ const Dashboard = () => {
     const handleMenuClick = (section) => {
         setActiveSection(section);
         setSelectedDoctor(null);
-        setErrorMessage(''); // Reset error message on section change
+        setErrorMessage('');
         if (section === 'doctors') {
             fetchDoctorsList();
         } else if (section === 'users') {
@@ -53,34 +56,34 @@ const Dashboard = () => {
         }
     };
 
-    const handleReviewDoctor = async (doctorId) => {
-        try {
-            const response = await axios.get(`http://localhost:8000/doctors/review/${doctorId}/`);
-            setSelectedDoctor(response.data);
-            setErrorMessage(''); // Clear error message if successful
-        } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setErrorMessage('Doctor has not submitted the required documents.');
-            } else {
-                console.error('Error fetching doctor verification details:', error);
-            }
+    const handleLogout = () => {
+        const confirmLogout = window.confirm('Are you sure you want to log out?');
+        if (confirmLogout) {
+            localStorage.clear(); // Clear any stored user data
+            navigate('/'); // Redirect to the login page
         }
     };
 
-    const handleVerifyDoctor = async () => {
-        try {
-            await axios.post(`http://localhost:8000/doctors/makeverify/${selectedDoctor.doc_id}/`);
-            alert("Doctor verified");
-            setSelectedDoctor(null);
-            fetchDoctorsList();
-        } catch (error) {
-            console.error('Error verifying doctor:', error);
-        }
+    // Placeholder function for handling review of a doctor
+    const handleReviewDoctor = (doctorId) => {
+        console.log("Reviewing doctor with ID:", doctorId);
+        // Set selected doctor for further details
+        const doctor = doctorsList.find(d => d.id === doctorId);
+        setSelectedDoctor(doctor);
     };
 
+    // Placeholder function for handling verification of a doctor
+    const handleVerifyDoctor = () => {
+        console.log("Verifying doctor:", selectedDoctor);
+        // Logic to verify the doctor (e.g., send a request to backend to mark as verified)
+        setErrorMessage('Doctor has been verified successfully.');
+        setSelectedDoctor(null); // Clear selection after verification
+    };
+
+    // Placeholder function for canceling verification of a doctor
     const handleCancelVerification = () => {
-        setSelectedDoctor(null);
-        setErrorMessage(''); // Reset error message when canceling
+        console.log("Canceled verification for doctor:", selectedDoctor);
+        setSelectedDoctor(null); // Clear selection
     };
 
     return (
@@ -104,7 +107,7 @@ const Dashboard = () => {
                             onClick={() => handleMenuClick('users')}>
                             Users
                         </li>
-                        <li className="menu-item logout">Logout</li>
+                        <li className="menu-item logout" onClick={handleLogout}>Logout</li>
                     </ul>
                 </aside>
 
@@ -135,7 +138,7 @@ const Dashboard = () => {
                                 {recentDoctors.map((doctor, index) => (
                                     <div className="doctor-card" key={index}>
                                         <div className="doctor-info">
-                                            <img src={doctor.profile_picture || '/path/to/default-doctor-icon.png'} 
+                                            <img src={doctor.profile_picture || ProfileIcon } 
                                                  alt={`${doctor.full_name}'s Profile`} 
                                                  className="doctor-profile-picture" />
                                             <h5>{doctor.full_name}</h5>
@@ -150,19 +153,31 @@ const Dashboard = () => {
 
                     {activeSection === 'doctors' && !selectedDoctor && (
                         <div className="doctors-list">
-                            <h4>Doctors List</h4>
+                            <h4>Doctors List</h4><br/>
                             {doctorsList.map((doctor) => (
                                 <div className="doctor-card" key={doctor.id}>
                                     <div className="doctor-info">
-                                        <img src={doctor.profile_picture || '/path/to/default-doctor-icon.png'} 
+                                        <img src={doctor.profile_picture || ProfileIcon } 
                                              alt={`${doctor.full_name}'s Profile`} 
                                              className="doctor-profile-picture" />
                                         <div>
-                                            <h5>{doctor.full_name}</h5>
+                                            <h3>{doctor.full_name}</h3><br/>
                                             <p>{doctor.email}</p>
-                                            <p>{doctor.phone}</p>
+                                        </div>
+                                        <div>
+                                            <p>{doctor.phone}</p><br/>
                                             <p>{doctor.state}</p>
                                         </div>
+                                        
+                                        {doctor.is_verified ? (
+                                            <div className='Isverified'>
+                                                <p style={ {color: 'green'} }>Verified</p>
+                                            </div>
+                                        ) : (
+                                            <div className='Isverified'>
+                                                <p style={ {color: 'red'} }>Not Verified</p>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="doctor-actions">
                                         <button className="btn-review" onClick={() => handleReviewDoctor(doctor.id)}>
@@ -220,15 +235,17 @@ const Dashboard = () => {
                         </div>
                     )}
 
-                    {activeSection === 'users' && (
+{activeSection === 'users' && (
                         <div className="users-list">
                             <h4>Users List</h4>
                             {usersList.map((user) => (
                                 <div className="user-card" key={user.id}>
                                     <div className="user-info">
                                         <div>
-                                            <h5>{user.full_name}</h5>
+                                            <h3>{user.full_name}</h3>
                                             <p>{user.email}</p>
+                                        </div>
+                                        <div>
                                             <p>{user.phone}</p>
                                             <p>{user.state}</p>
                                         </div>

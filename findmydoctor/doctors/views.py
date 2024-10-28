@@ -38,7 +38,7 @@ def recent_doctors(request):
     return Response(serializer.data)
 
 def get_all_doctors(request):
-    doctors = Doctor.objects.all().values('id', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'state', 'address', 'profile_picture')
+    doctors = Doctor.objects.all().values('id', 'full_name', 'email', 'phone', 'gender','is_verified', 'date_of_birth', 'state', 'address', 'profile_picture')
     return JsonResponse(list(doctors), safe=False)
 
 
