@@ -78,3 +78,8 @@ class VerificationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         verification = Verification.objects.create(**validated_data)
         return verification
+    
+class DoctorReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Verification
+        fields = '__all__'  # Or list each field explicitly if preferred

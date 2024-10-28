@@ -1,10 +1,10 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer , VerificationSerializer
-from rest_framework.decorators import api_view
+from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer , VerificationSerializer, DoctorReviewSerializer
 from .models import Doctor , Verification
 from django.http import JsonResponse
+from rest_framework.views import APIView
 
 @api_view(['POST'])
 def doctor_signup(request):
@@ -87,3 +87,44 @@ def doctor_verification(request, doctor_id):
     except Exception as e:
         print(e)
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+class DoctorVerificationDetailView(APIView):    
+    def get(self, request, doctor_id):
+        try:
+            verification = Verification.objects.get(doctor__id=doctor_id)
+            doctor = Doctor.objects.get(id=doctor_id)
+            serializer = DoctorReviewSerializer(verification)
+            response_data = {
+                'doc_id': doctor.id,
+                'full_name': doctor.full_name,
+                'email': doctor.email,
+                'phone': doctor.phone,
+                **serializer.data  # Includes serialized verification fields
+            }
+            print(response_data)
+            return Response(response_data, status=status.HTTP_200_OK)
+        except Verification.DoesNotExist:
+            return Response({"error": "Doctor verification details not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def VerifyDoctor(request, doctor_id):
+    try:
+        print(f'Received request to verify doctor with ID: {doctor_id}')
+        
+        doctor = Doctor.objects.get(id=doctor_id)
+        print(doctor)
+        doctor.is_verified = True
+        doctor.save()
+        
+        return Response(
+            {"message": "Doctor verified successfully."},
+            status=status.HTTP_200_OK
+        )
+    
+    except Doctor.DoesNotExist:
+        print('Doctor not found.')
+        return Response(
+            {"error": "Doctor not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )

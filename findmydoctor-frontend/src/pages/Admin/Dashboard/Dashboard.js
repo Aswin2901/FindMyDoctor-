@@ -7,8 +7,9 @@ import Navbar from '../../../components/Navbar/Navbar';
 const Dashboard = () => {
     const [recentDoctors, setRecentDoctors] = useState([]);
     const [doctorsList, setDoctorsList] = useState([]);
-    const [usersList, setUsersList] = useState([]);  // For users
-    const [activeSection, setActiveSection] = useState('dashboard'); // To toggle between sections
+    const [usersList, setUsersList] = useState([]);
+    const [activeSection, setActiveSection] = useState('dashboard');
+    const [selectedDoctor, setSelectedDoctor] = useState(null);
 
     useEffect(() => {
         const fetchRecentDoctors = async () => {
@@ -42,6 +43,7 @@ const Dashboard = () => {
 
     const handleMenuClick = (section) => {
         setActiveSection(section);
+        setSelectedDoctor(null);
         if (section === 'doctors') {
             fetchDoctorsList();
         } else if (section === 'users') {
@@ -49,40 +51,28 @@ const Dashboard = () => {
         }
     };
 
-    const handleBlockUser = async (userId) => {
-        try {
-            await axios.post(`http://localhost:8000/users/block/${userId}/`);
-            alert("User blocked");
-        } catch (error) {
-            console.error('Error blocking user:', error);
-        }
-    };
-
-    const handleUnblockUser = async (userId) => {
-        try {
-            await axios.post(`http://localhost:8000/users/unblock/${userId}/`);
-            alert("User unblocked");
-        } catch (error) {
-            console.error('Error unblocking user:', error);
-        }
-    };
-
-    const handleBlockDoctor = async (doctorId) => {
-        try {
-            await axios.post(`http://localhost:8000/doctors/block/${doctorId}/`);
-            alert("Doctor blocked");
-        } catch (error) {
-            console.error('Error blocking doctor:', error);
-        }
-    };
-
     const handleReviewDoctor = async (doctorId) => {
         try {
-            await axios.post(`http://localhost:8000/doctors/review/${doctorId}/`);
-            alert("Doctor reviewed and verified");
+            const response = await axios.get(`http://localhost:8000/doctors/review/${doctorId}/`);
+            setSelectedDoctor(response.data);
         } catch (error) {
-            console.error('Error reviewing doctor:', error);
+            console.error('Error fetching doctor verification details:', error);
         }
+    };
+
+    const handleVerifyDoctor = async () => {
+        try {
+            await axios.post(`http://localhost:8000/doctors/makeverify/${selectedDoctor.doc_id}/`);
+            alert("Doctor verified");
+            setSelectedDoctor(null);
+            fetchDoctorsList();
+        } catch (error) {
+            console.error('Error verifying doctor:', error);
+        }
+    };
+
+    const handleCancelVerification = () => {
+        setSelectedDoctor(null);
     };
 
     return (
@@ -111,7 +101,6 @@ const Dashboard = () => {
                 </aside>
 
                 <section className="dashboard-content">
-                    {/* Dashboard view */}
                     {activeSection === 'dashboard' && (
                         <>
                             <div className="categories">
@@ -138,11 +127,9 @@ const Dashboard = () => {
                                 {recentDoctors.map((doctor, index) => (
                                     <div className="doctor-card" key={index}>
                                         <div className="doctor-info">
-                                            {doctor.profile_picture ? (
-                                                <img src={doctor.profile_picture} alt={`${doctor.full_name}'s Profile`} className="doctor-profile-picture" />
-                                            ) : (
-                                                <img src="/path/to/default-doctor-icon.png" alt="Default Doctor Icon" className="doctor-profile-picture" />
-                                            )}
+                                            <img src={doctor.profile_picture || '/path/to/default-doctor-icon.png'} 
+                                                 alt={`${doctor.full_name}'s Profile`} 
+                                                 className="doctor-profile-picture" />
                                             <h5>{doctor.full_name}</h5>
                                             <p>{doctor.email}</p>
                                             <p>{doctor.phone}</p>
@@ -153,8 +140,7 @@ const Dashboard = () => {
                         </>
                     )}
 
-                    {/* Doctors List View */}
-                    {activeSection === 'doctors' && (
+                    {activeSection === 'doctors' && !selectedDoctor && (
                         <div className="doctors-list">
                             <h4>Doctors List</h4>
                             {doctorsList.map((doctor) => (
@@ -171,15 +157,55 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                     <div className="doctor-actions">
-                                        <button className="btn-block" onClick={() => handleBlockDoctor(doctor.id)}>Block</button>
-                                        <button className="btn-review" onClick={() => handleReviewDoctor(doctor.id)}>Review & Verify</button>
+                                        <button className="btn-review" onClick={() => handleReviewDoctor(doctor.id)}>
+                                            Review & Verify
+                                        </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     )}
 
-                    {/* Users List View */}
+                    {selectedDoctor && (
+                        <div className="verification-details">
+                            <h4>Verification Details for {selectedDoctor.full_name}</h4>
+                            <p>Email: {selectedDoctor.email}</p>
+                            <p>Phone: {selectedDoctor.phone}</p>
+                            <p>Qualification: {selectedDoctor.qualification}</p>
+                            <p>Specialty: {selectedDoctor.specialty}</p>
+                            <p>Experience: {selectedDoctor.experience} years</p>
+                            <p>Hospital: {selectedDoctor.hospital}</p>
+                            <p>Clinic: {selectedDoctor.clinic}</p>
+                            <p>License: {selectedDoctor.license}</p>
+                            <p>Issuing Authority: {selectedDoctor.issuing_authority}</p>
+                            <p>License Expiry Date: {selectedDoctor.expiry_date}</p>
+                            <p>Medical Registration: {selectedDoctor.medical_registration}</p>
+
+                            <div className="document-thumbnails">
+                                <div className="document-thumbnail">
+                                    <a href={selectedDoctor.id_proof} target="_blank" rel="noopener noreferrer">
+                                        <img src={`http://localhost:8000${selectedDoctor.id_proof}`} alt="ID Proof" />
+                                    </a>
+                                </div>
+                                <div className="document-thumbnail">
+                                    <a href={selectedDoctor.medical_license} target="_blank" rel="noopener noreferrer">
+                                        <img src={`http://localhost:8000${selectedDoctor.medical_license}`} alt="Medical License" />
+                                    </a>
+                                </div>
+                                <div className="document-thumbnail">
+                                    <a href={selectedDoctor.degree_certificate} target="_blank" rel="noopener noreferrer">
+                                        <img src={`http://localhost:8000${selectedDoctor.degree_certificate}`} alt="Degree Certificate" />
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div className="verification-actions">
+                                <button className="btn-verify" onClick={handleVerifyDoctor}>Verify</button>
+                                <button className="btn-cancel" onClick={handleCancelVerification}>Cancel</button>
+                            </div>
+                        </div>
+                    )}
+
                     {activeSection === 'users' && (
                         <div className="users-list">
                             <h4>Users List</h4>
@@ -195,9 +221,9 @@ const Dashboard = () => {
                                     </div>
                                     <div className="user-actions">
                                         {user.is_active ? (
-                                            <button className="btn-block" onClick={() => handleBlockUser(user.id)}>Block</button>
+                                            <button className="btn-block">Block</button>
                                         ) : (
-                                            <button className="btn-unblock" onClick={() => handleUnblockUser(user.id)}>Unblock</button>
+                                            <button className="btn-unblock">Unblock</button>
                                         )}
                                     </div>
                                 </div>
