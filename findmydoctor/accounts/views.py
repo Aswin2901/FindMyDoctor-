@@ -47,7 +47,8 @@ def register_user(request):
 
     # Generate and store OTP in cache
     otp = generate_otp()
-    cache.set(email, otp, timeout=300)  # OTP expires in 5 minutes
+    cache.set(email, otp, timeout=300) 
+    print(f"OTP cached for {email}: {otp}") 
 
     # Send OTP to email
     send_otp_email(email, otp)
@@ -63,13 +64,14 @@ def verify_otp(request):
     input_otp = request.data.get('otp')
     cached_otp = cache.get(email)
 
+
     if cached_otp and str(cached_otp) == input_otp:
-        # OTP is valid, register the user
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
         else:
+            print("Serializer errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
@@ -85,8 +87,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         except AuthenticationFailed as e:
             return Response({'error': str(e)}, status=400)
 
-        print('response 1111111111111111111')
-        print(request.data)
         return Response({
             'access': response.data['access'],
             'refresh': response.data['refresh'],
