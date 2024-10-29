@@ -46,7 +46,7 @@ const Signup = () => {
       const response = await axios.post('http://localhost:8000/accounts/verify-otp/', { ...formData, otp });
       console.log('User registered successfully', response.data);
       setErrorMessages('')
-      navigate('/login', { state: { message: 'Signup successful! Please log in.' } });
+      navigate('/', { state: { message: 'Signup successful! Please log in.' } });
     } catch (error) {
       console.error('OTP verification error:', error.response ? error.response.data : error.message);
       setErrorMessages('Invalid OTP. Please try again.');

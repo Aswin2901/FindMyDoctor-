@@ -101,7 +101,7 @@ class DoctorVerificationDetailView(APIView):
                 'phone': doctor.phone,
                 **serializer.data  # Includes serialized verification fields
             }
-            print(response_data)
+            print(' 11111' ,response_data)
             return Response(response_data, status=status.HTTP_200_OK)
         except Verification.DoesNotExist:
             return Response({"error": "Doctor verification details not found."}, status=status.HTTP_404_NOT_FOUND)

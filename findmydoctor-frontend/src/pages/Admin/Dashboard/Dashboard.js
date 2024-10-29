@@ -59,28 +59,33 @@ const Dashboard = () => {
     const handleLogout = () => {
         const confirmLogout = window.confirm('Are you sure you want to log out?');
         if (confirmLogout) {
-            localStorage.clear(); // Clear any stored user data
-            navigate('/'); // Redirect to the login page
+            localStorage.clear(); 
+            navigate('/'); 
         }
     };
 
     // Placeholder function for handling review of a doctor
-    const handleReviewDoctor = (doctorId) => {
-        console.log("Reviewing doctor with ID:", doctorId);
-        // Set selected doctor for further details
-        const doctor = doctorsList.find(d => d.id === doctorId);
-        setSelectedDoctor(doctor);
+    const handleReviewDoctor = async (doctorId) => {
+        try {
+            const response = await axios.get(`http://localhost:8000/doctors/review/${doctorId}/`);
+            console.log(response.data)
+            setSelectedDoctor(response.data);
+        } catch (error) {
+            console.error('Error fetching doctor verification details:', error);
+        }
     };
 
-    // Placeholder function for handling verification of a doctor
-    const handleVerifyDoctor = () => {
-        console.log("Verifying doctor:", selectedDoctor);
-        // Logic to verify the doctor (e.g., send a request to backend to mark as verified)
-        setErrorMessage('Doctor has been verified successfully.');
-        setSelectedDoctor(null); // Clear selection after verification
+    const handleVerifyDoctor = async () => {
+        try {
+            await axios.post(`http://localhost:8000/doctors/makeverify/${selectedDoctor.doc_id}/`);
+            alert("Doctor verified");
+            setSelectedDoctor(null);
+            fetchDoctorsList();
+        } catch (error) {
+            console.error('Error verifying doctor:', error);
+        }
     };
 
-    // Placeholder function for canceling verification of a doctor
     const handleCancelVerification = () => {
         console.log("Canceled verification for doctor:", selectedDoctor);
         setSelectedDoctor(null); // Clear selection
@@ -235,7 +240,7 @@ const Dashboard = () => {
                         </div>
                     )}
 
-{activeSection === 'users' && (
+                    {activeSection === 'users' && (
                         <div className="users-list">
                             <h4>Users List</h4>
                             {usersList.map((user) => (
