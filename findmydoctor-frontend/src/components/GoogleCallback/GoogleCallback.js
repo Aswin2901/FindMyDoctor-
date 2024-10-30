@@ -18,6 +18,7 @@ const GoogleCallback = () => {
 
           console.log('Login success:', response.data); // This should log the success response
           localStorage.setItem('access_token', response.data.access_token);
+          localStorage.setItem('refresh_token' , response.data.refresh_token);
           console.log('Access token saved to localStorage'); // Log to confirm access token is saved
           navigate('/home'); // Redirect to home after successful login
         } catch (error) {

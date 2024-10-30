@@ -102,9 +102,15 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 # Function to initiate Google OAuth login
 @api_view(['GET'])
 def google_login(request):
-    auth_url = f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}&redirect_uri=http://localhost:3000/oauth/callback/&scope=email profile'
+    auth_url = (
+        'https://accounts.google.com/o/oauth2/auth'
+        f'?response_type=code&client_id={settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}'
+        '&redirect_uri=http://localhost:3000/oauth/callback/'
+        '&scope=email profile'
+        '&access_type=offline'  
+        '&prompt=consent'       
+    )
     return Response({'auth_url': auth_url})
-
 
 
 @api_view(['GET'])
@@ -125,6 +131,13 @@ def google_callback(request):
         flow.fetch_token(code=code)
         credentials = flow.credentials
         access_token = credentials.token
+        refresh_token = credentials.refresh_token  
+        
+        print('refresh_token :' , refresh_token )
+
+        # Check if refresh_token is None and handle it
+        if refresh_token is None:
+            return Response({'error': 'Refresh token was not provided. Re-authentication may be required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Get user info from Google
         user_info_endpoint = 'https://www.googleapis.com/oauth2/v2/userinfo'
@@ -133,33 +146,39 @@ def google_callback(request):
 
         email = user_info['email']
         full_name = user_info.get('name', '')
-        gender = user_info.get('gender', 'Not specified')  
+        gender = user_info.get('gender', 'Not specified')
         
-        print(email , full_name , gender)
+        print(email, full_name, gender)
 
         # Check if the user already exists
         try:
             user = User.objects.get(email=email)
             if user:
-                return Response({'access_token': access_token, 'user_info': user_info, 'message': 'Google OAuth login successful'})    
+                return Response({
+                    'access_token': access_token,
+                    'refresh_token': refresh_token,
+                    'user_info': user_info,
+                    'message': 'Google OAuth login successful'
+                })    
             
-
         except User.DoesNotExist:
             user = User.objects.create(
                 email=email,
                 full_name=full_name,
-                
             )
             user.set_unusable_password()  
             user.save()
             print('user saved')
 
-
-            return Response({'access_token': access_token, 'user_info': user_info, 'message': 'Google OAuth login successful'})
+            return Response({
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'user_info': user_info,
+                'message': 'Google OAuth login successful'
+            })
 
     except Exception as e:
         return Response({'error': f"An error occurred: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-    
 
 
 @api_view(['GET'])
