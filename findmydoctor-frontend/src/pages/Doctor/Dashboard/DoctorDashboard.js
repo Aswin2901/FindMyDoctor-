@@ -16,6 +16,8 @@ function DoctorDashboard() {
         async function checkVerification() {
             try {
                 const response = await axios.get(`http://127.0.0.1:8000/doctors/verification/${doctorId}/`);
+                console.log('is_verified' , response.data.is_verified)
+                console.log('form ' , response.data.form_submitted)
                 setIsVerified(response.data.is_verified);
                 setFormSubmitted(response.data.form_submitted);
             } catch (error) {

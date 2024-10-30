@@ -33,6 +33,9 @@ const Login = () => {
       // Store tokens in localStorage
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
+      if (response.data.is_doctor) {
+            localStorage.setItem('doctor_id', response.data.doctor_id);
+        }
 
       // Dispatch Redux action to update global auth state
       dispatch(login({
@@ -44,12 +47,19 @@ const Login = () => {
       setErrorMessage('');
 
       setTimeout(() => {
-        const destination = response.data.is_superuser ? '/admin/dashboard' : '/home';
+        let destination = '/home'; 
+    
+        if (response.data.is_doctor) {
+            destination = '/doctordashboard';
+        } else if (response.data.is_superuser) {
+            destination = '/admin/dashboard';
+        }
+    
+        // Navigate to the determined destination
         navigate(destination);
-
-        // Replace history to prevent back navigation
+    
         window.history.replaceState(null, '', destination);
-      }, 2000);
+    }, 2000);
 
     } catch (error) {
       console.error('Login error:', error.response ? error.response.data : error.message);

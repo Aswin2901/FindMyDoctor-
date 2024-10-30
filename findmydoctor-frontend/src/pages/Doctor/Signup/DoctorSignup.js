@@ -150,8 +150,8 @@ const DoctorSignup = () => {
             <button type="submit" className="signup-button">SIGN UP</button>
           </form>
           <div className="signup-links">
-            <Link to='/doctorlogin'>Already have an account?</Link><br />
-            <Link to='/'>Sign up as a user</Link>
+            <Link to='/'>Already have an account?</Link><br />
+            <Link to='/signup'>Sign up as a user</Link>
           </div>
         </div>
       </div>
