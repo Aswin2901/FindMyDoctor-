@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../../../components/Navbar/Navbar.js';
 import Footer from '../../../components/Footer/Footer.js';
+import { useDispatch } from 'react-redux';
+import { login } from '../../../slices/authSlice';
 import './Login.css';
 
 const Login = () => {
@@ -14,6 +16,7 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,19 +30,26 @@ const Login = () => {
         password: formData.password,
       });
 
-      console.log('Login successful', response.data);
+      // Store tokens in localStorage
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
+      // Dispatch Redux action to update global auth state
+      dispatch(login({
+        user: { email: formData.email, isSuperUser: response.data.is_superuser },
+        role: response.data.is_superuser ? 'admin' : 'user',
+      }));
+
       setSuccessMessage('Login successful! Redirecting...');
       setErrorMessage('');
-      
-      if (response.data.is_superuser) {
-        setTimeout(() => navigate('/admin/dashboard'), 2000)
-      } else {
-        setSuccessMessage('Login successful! Redirecting...');
-        setTimeout(() => navigate('/home'), 2000);
-      }
+
+      setTimeout(() => {
+        const destination = response.data.is_superuser ? '/admin/dashboard' : '/home';
+        navigate(destination);
+
+        // Replace history to prevent back navigation
+        window.history.replaceState(null, '', destination);
+      }, 2000);
 
     } catch (error) {
       console.error('Login error:', error.response ? error.response.data : error.message);

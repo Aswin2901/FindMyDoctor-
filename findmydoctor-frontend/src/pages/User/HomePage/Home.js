@@ -10,6 +10,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faCalendarAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
+
+  useEffect(() => {
+    // Prevent back navigation
+    const preventBack = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', preventBack);
+
+    return () => window.removeEventListener('popstate', preventBack);
+  }, []);
+
   const [currentImage, setCurrentImage] = useState(0);
 
   const images = [
