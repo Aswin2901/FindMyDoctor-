@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import './Signup.css';
@@ -13,6 +13,8 @@ const Signup = () => {
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [errorMessages, setErrorMessages] = useState('');
+  const [timer, setTimer] = useState(30); // Set timer for 30 seconds
+  const [resendAvailable, setResendAvailable] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,9 +33,11 @@ const Signup = () => {
 
     try {
       const response = await axios.post('http://localhost:8000/accounts/register/', formData);
-      setErrorMessages('')
+      setErrorMessages('');
       console.log('OTP sent', response.data);
       setOtpSent(true); // Show OTP input field
+      setResendAvailable(false); // Reset resend availability
+      setTimer(30); // Start countdown timer
     } catch (error) {
       console.error('Registration error:', error.response ? error.response.data : error.message);
       setErrorMessages('An error occurred. Please try again.');
@@ -45,7 +49,7 @@ const Signup = () => {
     try {
       const response = await axios.post('http://localhost:8000/accounts/verify-otp/', { ...formData, otp });
       console.log('User registered successfully', response.data);
-      setErrorMessages('')
+      setErrorMessages('');
       navigate('/', { state: { message: 'Signup successful! Please log in.' } });
     } catch (error) {
       console.error('OTP verification error:', error.response ? error.response.data : error.message);
@@ -53,10 +57,34 @@ const Signup = () => {
     }
   };
 
+  const handleResendOtp = async () => {
+    try {
+      const response = await axios.post('http://localhost:8000/accounts/register/', formData);
+      console.log('New OTP sent', response.data);
+      setErrorMessages('A new OTP has been sent to your email.');
+      setTimer(30); // Restart countdown timer
+      setResendAvailable(false); // Disable resend until timer completes
+    } catch (error) {
+      console.error('Error resending OTP:', error.response ? error.response.data : error.message);
+      setErrorMessages('Could not resend OTP. Please try again.');
+    }
+  };
+
+  // Countdown timer effect
+  useEffect(() => {
+    let countdown;
+    if (timer > 0 && otpSent) {
+      countdown = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    } else if (timer === 0) {
+      setResendAvailable(true);
+    }
+    return () => clearInterval(countdown);
+  }, [timer, otpSent]);
+
   return (
     <div>
-      <Navbar/>
-    
+      <Navbar />
+      
       <div className="signup-container">
         {/* Display Error Messages */}
         {errorMessages && <div className="error-message">{errorMessages}</div>}
@@ -117,10 +145,22 @@ const Signup = () => {
             <label>OTP:</label>
             <input type="text" name="otp" value={otp} onChange={handleOtpChange} required />
             <button type="submit" className="otp-button">VERIFY OTP</button>
+            
+            {/* Display Timer and Resend Link */}
+            <div className="otp-timer">
+              {timer > 0 ? (
+                <p>Please enter the OTP. Resend available in {timer} seconds.</p>
+              ) : (
+                <p>
+                  Didn’t receive the OTP?{' '}
+                  <span className="resend-link" onClick={handleResendOtp}>Resend OTP</span>
+                </p>
+              )}
+            </div>
           </form>
         )}
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

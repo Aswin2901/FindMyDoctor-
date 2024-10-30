@@ -23,12 +23,11 @@ from .models import User
 
 
 
-# Generate a random OTP
+
 def generate_otp():
     return random.randint(100000, 999999)
 
 
-# Send OTP to user's email
 def send_otp_email(email, otp):
     send_mail(
         'Your OTP Code',
@@ -39,13 +38,13 @@ def send_otp_email(email, otp):
     )
 
 
-# Endpoint to register a user and send OTP
+
 @csrf_exempt
 @api_view(['POST'])
 def register_user(request):
     email = request.data.get('email')
 
-    # Generate and store OTP in cache
+
     otp = generate_otp()
     cache.set(email, otp, timeout=300) 
     print(f"OTP cached for {email}: {otp}") 

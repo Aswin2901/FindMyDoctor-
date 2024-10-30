@@ -62,3 +62,18 @@ input {
 .otp-form input {
   margin-bottom: 0.5rem;
 }
+.otp-timer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.resend-link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.resend-link:hover {
+  color: #0056b3;
+}
