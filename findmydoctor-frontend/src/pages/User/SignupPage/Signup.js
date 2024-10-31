@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 import './Signup.css';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
@@ -16,6 +17,21 @@ const Signup = () => {
   const [timer, setTimer] = useState(30); // Set timer for 30 seconds
   const [resendAvailable, setResendAvailable] = useState(false);
 
+  // Yup validation schema
+  const SignupSchema = Yup.object().shape({
+    full_name: Yup.string().required('Full name is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    phone: Yup.string().required('Phone number is required'),
+    gender: Yup.string().oneOf(['Male', 'Female'], 'Select a valid gender').required('Gender is required'),
+    date_of_birth: Yup.date().required('Date of birth is required'),
+    state: Yup.string().required('State is required'),
+    address: Yup.string().required('Address is required'),
+    password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password'), null], 'Passwords must match')
+      .required('Confirm password is required'),
+  });
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -26,21 +42,25 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMessages("Passwords don't match.");
-      return;
-    }
 
+    // Validate form data using Yup schema
     try {
-      const response = await axios.post('http://localhost:8000/accounts/register/', formData);
+      await SignupSchema.validate(formData, { abortEarly: false });
       setErrorMessages('');
+
+      const response = await axios.post('http://localhost:8000/accounts/register/', formData);
       console.log('OTP sent', response.data);
-      setOtpSent(true); // Show OTP input field
-      setResendAvailable(false); // Reset resend availability
-      setTimer(30); // Start countdown timer
+      setOtpSent(true);
+      setResendAvailable(false);
+      setTimer(30);
     } catch (error) {
-      console.error('Registration error:', error.response ? error.response.data : error.message);
-      setErrorMessages('An error occurred. Please try again.');
+      if (error.name === 'ValidationError') {
+        const errors = error.inner.map(err => err.message).join(', ');
+        setErrorMessages(errors);
+      } else {
+        console.error('Registration error:', error.response ? error.response.data : error.message);
+        setErrorMessages('An error occurred. Please try again.');
+      }
     }
   };
 
@@ -62,8 +82,8 @@ const Signup = () => {
       const response = await axios.post('http://localhost:8000/accounts/register/', formData);
       console.log('New OTP sent', response.data);
       setErrorMessages('A new OTP has been sent to your email.');
-      setTimer(30); // Restart countdown timer
-      setResendAvailable(false); // Disable resend until timer completes
+      setTimer(30);
+      setResendAvailable(false);
     } catch (error) {
       console.error('Error resending OTP:', error.response ? error.response.data : error.message);
       setErrorMessages('Could not resend OTP. Please try again.');
