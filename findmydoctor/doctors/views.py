@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer , VerificationSerializer, DoctorReviewSerializer
+from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer , VerificationSerializer, DoctorReviewSerializer , GetDoctorSerializer
 from .models import Doctor , Verification
 from django.http import JsonResponse
 from rest_framework.views import APIView
@@ -101,7 +101,6 @@ class DoctorVerificationDetailView(APIView):
                 'phone': doctor.phone,
                 **serializer.data  # Includes serialized verification fields
             }
-            print(' 11111' ,response_data)
             return Response(response_data, status=status.HTTP_200_OK)
         except Verification.DoesNotExist:
             return Response({"error": "Doctor verification details not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -128,3 +127,9 @@ def VerifyDoctor(request, doctor_id):
             {"error": "Doctor not found."},
             status=status.HTTP_404_NOT_FOUND
         )
+        
+@api_view(['GET'])
+def get_verified_doctors(request):
+    verified_doctors = Doctor.objects.filter(is_verified=True)
+    serializer = GetDoctorSerializer(verified_doctors, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

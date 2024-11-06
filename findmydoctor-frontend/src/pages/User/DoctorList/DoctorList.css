@@ -1,0 +1,148 @@
+/* DoctorList.css */
+body {
+    background: linear-gradient(135deg, #f0f4ff, #e0f7fa);
+    font-family: Arial, sans-serif;
+  }
+
+.doctor-list {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .doctor-list h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .doctor-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .doctor-card {
+    display: inline;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+  }
+  
+  .doctor-card:hover {
+    transform: scale(1.02);
+  }
+  
+  .doctor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensures space between info and button */
+    cursor: pointer;
+    padding: 15px;
+  }
+  
+  .doctor-info {
+    display: flex;
+    align-items: center;
+    flex: 1; /* Takes up remaining space */
+  }
+  
+  .doctor-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #e3e3e3;
+    margin-right: 15px;
+  }
+  
+  .doctor-basic-info {
+    text-align: left;
+  }
+  
+  .doctor-basic-info h3 {
+    font-size: 1.5em;
+    margin: 5px 0;
+    color: #333;
+  }
+  
+  .doctor-basic-info p {
+    font-size: 0.9em;
+    color: #777;
+    margin: 3px 0;
+  }
+  
+  .expand-button {
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: color 0.3s;
+    margin-left: 10px;
+  }
+  
+  .expand-button:hover {
+    color: #0056b3;
+  }
+  
+  .doctor-details {
+    padding: 15px;
+    background-color:#f8f9fa;
+    border-top: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .doctor-details p {
+    font-size: 0.9em;
+    color: #555;
+    margin: 5px 0;
+  }
+  
+  .doctor-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .appointment-button,
+  .add-doctor-button {
+    flex: 1;
+    padding: 10px;
+    font-size: 0.9em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .appointment-button {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .appointment-button:hover {
+    background-color: #218838;
+  }
+  
+  .add-doctor-button {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .add-doctor-button:hover {
+    background-color: #0069d9;
+  }
+
+  .doctor-card .badge {
+    background-color: #ff4081;
+    color: white;
+    font-size: 0.75em;
+    padding: 5px 10px;
+    border-radius: 12px;
+    margin-left: 10px;
+    font-weight: bold;
+  }

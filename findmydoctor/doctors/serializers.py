@@ -82,4 +82,18 @@ class VerificationSerializer(serializers.ModelSerializer):
 class DoctorReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Verification
-        fields = '__all__'  # Or list each field explicitly if preferred
+        fields = '__all__'  
+        
+class GetDoctorSerializer(serializers.ModelSerializer):
+    qualification = serializers.CharField(source='verification.qualification', read_only=True)
+    specialty = serializers.CharField(source='verification.specialty', read_only=True)
+    experience = serializers.IntegerField(source='verification.experience', read_only=True)
+    hospital = serializers.CharField(source='verification.hospital', read_only=True)
+    clinic = serializers.CharField(source='verification.clinic', read_only=True)
+
+    class Meta:
+        model = Doctor
+        fields = [
+            'id', 'full_name', 'email', 'phone', 'gender', 'profile_picture', 
+            'qualification', 'specialty', 'experience', 'hospital', 'clinic'
+        ]

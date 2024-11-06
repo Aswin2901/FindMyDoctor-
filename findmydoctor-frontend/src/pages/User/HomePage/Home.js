@@ -8,8 +8,11 @@ import doctor3 from '../../../Images/doc-3.jpeg';
 import doctorpatient from '../../../Images/service doctor -1.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faCalendarAlt, faUser } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Prevent back navigation
@@ -58,9 +61,11 @@ const Home = () => {
               <FontAwesomeIcon icon={faCalendarAlt} className="icon" />
               <p>APPOINTMENT</p>
             </div>
-            <div className="button profile-button">
+            <div className="button profile-button" onClick={()=>{
+              navigate('/doctorlist')
+            }}>
               <FontAwesomeIcon icon={faUser} className="icon" />
-              <p>PROFILES</p>
+              <p>DOCTORS</p>
             </div>
           </div>
         </div>

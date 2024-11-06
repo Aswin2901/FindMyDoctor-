@@ -11,6 +11,7 @@ import DoctorSignup from './pages/Doctor/Signup/DoctorSignup';
 import DoctorDashboard from './pages/Doctor/Dashboard/DoctorDashboard';
 import Dashboard from './pages/Admin/Dashboard/Dashboard';
 import GoogleCallback from './components/GoogleCallback/GoogleCallback';
+import DoctorList from './pages/User/DoctorList/DoctorList';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/profilevarification" element={<VerificationForm />} />
           <Route path="/admin/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/oauth/callback" element={<GoogleCallback />} /> 
+          <Route path="/doctorlist" element={<DoctorList/>} />
         </Routes>
       </Router>
     </div>
