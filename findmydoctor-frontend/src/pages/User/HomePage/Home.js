@@ -51,7 +51,7 @@ const Home = () => {
         style={{ backgroundImage: `url(${images[currentImage]})` }} 
       >
         <div className="hero-content">
-          <h1>Find Your Personal <span>Doctor</span> Anytime!</h1>
+          <h1>Find Your Personal <span>Doctor</span> <br/> Anytime!</h1>
           <div className="action-buttons">
             <div className="button search-button">
               <FontAwesomeIcon icon={faSearch} className="icon" />

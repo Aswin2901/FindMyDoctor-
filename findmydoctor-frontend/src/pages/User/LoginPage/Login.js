@@ -39,9 +39,13 @@ const Login = () => {
 
       // Dispatch Redux action to update global auth state
       dispatch(login({
-        user: { email: formData.email, isSuperUser: response.data.is_superuser },
+        user: {
+            id: response.data.id,  // Pass the ID here
+            email: formData.email,
+            isSuperUser: response.data.is_superuser,
+        },
         role: response.data.is_superuser ? 'admin' : 'user',
-      }));
+    }));
 
       setSuccessMessage('Login successful! Redirecting...');
       setErrorMessage('');

@@ -27,5 +27,6 @@ urlpatterns = [
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('accounts/', include('accounts.urls')),
-    path('doctors/', include('doctors.urls'))
+    path('doctors/', include('doctors.urls')),
+    path('appointments/', include('appointments.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'accounts',
     'doctors',
+    'appointments',
     'social_django',
     'dj_rest_auth',
 ]
