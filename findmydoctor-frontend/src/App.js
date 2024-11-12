@@ -12,12 +12,15 @@ import DoctorDashboard from './pages/Doctor/Dashboard/DoctorDashboard';
 import Dashboard from './pages/Admin/Dashboard/Dashboard';
 import GoogleCallback from './components/GoogleCallback/GoogleCallback';
 import DoctorList from './pages/User/DoctorList/DoctorList';
+import ProfilePage from './pages/User/Profile/ProfilePage';
+import Navbar from './components/Navbar/Navbar';
 
 function App() {
   return (
     <div className="App">
       <Router>
         <Routes>
+          <Route path='/navbar' element={<Navbar/>}/>
           <Route path="/signup" element={<Signup />} />
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
@@ -27,6 +30,7 @@ function App() {
           <Route path="/admin/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/oauth/callback" element={<GoogleCallback />} /> 
           <Route path="/doctorlist" element={<DoctorList/>} />
+          <Route path='/profile' element = {<PrivateRoute><ProfilePage/></PrivateRoute>}/>
         </Routes>
       </Router>
     </div>

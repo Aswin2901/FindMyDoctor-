@@ -9,8 +9,11 @@ import doctorpatient from '../../../Images/service doctor -1.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faCalendarAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Home = () => {
+  const userId = useSelector((state) => state.auth.user?.id);
+  console.log('userId : ', userId); 
 
   const navigate = useNavigate()
 

@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer , AllUserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny ,IsAuthenticated
 from rest_framework.exceptions import AuthenticationFailed
 import random
 from django.core.mail import send_mail
@@ -20,6 +20,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from .models import User
+from rest_framework.decorators import api_view, permission_classes
+import json
 
 
 
@@ -157,6 +159,8 @@ def google_callback(request):
                     'access_token': access_token,
                     'refresh_token': refresh_token,
                     'user_info': user_info,
+                    'userId': user.id,
+                    'email': email,
                     'message': 'Google OAuth login successful'
                 })    
             
@@ -185,3 +189,30 @@ def all_users(request):
     users = User.objects.all()
     serializer = AllUserSerializer(users, many=True)
     return Response(serializer.data)
+
+
+
+import logging
+logger = logging.getLogger(__name__)
+
+@api_view(['GET'])
+def get_user_profile(request, userId):
+    try:
+        # Retrieve the user instance
+        user = User.objects.get(id=userId)
+        
+        # Serialize the user data into a dictionary (or use a serializer if needed)
+        user_data = {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "gender": user.gender,
+            "phone": user.phone,
+            "address": user.address,
+        }
+        
+        return Response(user_data)
+
+    except User.DoesNotExist:
+        # Return 404 if the user does not exist
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)

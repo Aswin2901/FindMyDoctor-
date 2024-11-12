@@ -48,11 +48,20 @@ body {
     margin: 0 15px;
 }
 
-.navbar-links a {
+/* Button styles instead of anchor links */
+.navbar-links button {
     text-decoration: none;
     font-size: 18px;
     color: #000;
     font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Button hover effect */
+.navbar-links button:hover {
+    color: #ff3b3f; /* Highlight color */
 }
 
 /* Ensure the profile icon is visible */
@@ -61,11 +70,19 @@ body {
     margin-left: 20px; /* Add some space between links and icon */
 }
 
-.navbar-user-icon a {
+.navbar-user-icon button {
+    background: none;
+    border: none;
     color: #000;
-    text-decoration: none;
+    cursor: pointer;
 }
 
+/* Increase icon size */
 .navbar-user-icon i {
     font-size: 28px;
+}
+
+/* Button hover effect for profile icon */
+.navbar-user-icon button:hover {
+    color: #ff3b3f; /* Highlight color */
 }

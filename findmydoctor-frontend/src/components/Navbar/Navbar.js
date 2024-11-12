@@ -1,9 +1,15 @@
 import React from 'react';
 import './Navbar.css';
-import logo from '../../Images/icon.svg'
-
+import logo from '../../Images/icon.svg';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+    const navigate = useNavigate();
+    
+    const handleNavigate = (path) => {
+        navigate(path);
+    };
+
     return (
         <nav className="navbar">
             <div className="navbar-logo">
@@ -11,14 +17,14 @@ const Navbar = () => {
                 <span>FIND <span className="highlight">MY</span> DOCTOR</span>
             </div>
             <ul className="navbar-links">
-                <li><a href="/">HOME</a></li>
-                <li><a href="/service">SERVICE</a></li>
-                <li><a href="/notification">NOTIFICATION</a></li>
+                <li><button onClick={() => handleNavigate('/home')}>HOME</button></li>
+                <li><button onClick={() => handleNavigate('/service')}>SERVICE</button></li>
+                <li><button onClick={() => handleNavigate('/notification')}>NOTIFICATION</button></li>
             </ul>
             <div className="navbar-user-icon">
-                <a href="/profile">
+                <button onClick={() => handleNavigate('/profile')}>
                     <i className="fa fa-user"></i>
-                </a>
+                </button>
             </div>
         </nav>
     );
