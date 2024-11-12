@@ -5,8 +5,10 @@ import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
 import defaultProfileIcon from '../../../Images/profile-icon.png';
 import './DoctorList.css';
+import { useSelector } from 'react-redux';
 
 const DoctorList = () => {
+  const userId = useSelector((state) => state.auth.user?.id)
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +50,22 @@ const DoctorList = () => {
   };
 
   if (loading) return <p>Loading doctors...</p>;
+
+  const addToMyDoctors = async (doctorId) => {
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/accounts/add-to-my-doctors/',
+        { doctor_id: doctorId ,
+          userId : userId
+        }
+        
+      );
+      alert(response.data.message);
+    } catch (error) {
+      console.error('Error adding doctor to My Doctors:', error);
+      alert('Failed to add doctor.');
+    }
+  };
 
   return (
     <div>
@@ -109,11 +127,10 @@ const DoctorList = () => {
                       alt={doctor.full_name}
                       className="doctor-image"
                     />
-                    <div>
-                      <h3>{doctor.full_name}</h3>
-                      <p>Qualification: {doctor.qualification}</p>
-                      <p>Specialty: {doctor.specialty}</p>
-                    </div>
+                    <h3>{doctor.full_name}</h3>
+                    <p>Qualification: {doctor.qualification}</p>
+                    <p>Specialty: {doctor.specialty}</p>
+      
                   </div>
                   <button className="expand-button">
                     {expandedCards[index] ? '▲' : '▼'}
@@ -135,7 +152,7 @@ const DoctorList = () => {
                       >
                         Take Appointment
                       </button>
-                      <button className="add-doctor-btn">Add to My Doctors</button>
+                      <button className="add-doctor-btn" onClick={()=>{ addToMyDoctors(doctor.id) }}>Add to My Doctors</button>
                     </div>
                   </div>
                 )}

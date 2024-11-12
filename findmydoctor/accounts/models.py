@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.conf import settings
+from doctors.models import Doctor
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -55,3 +57,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         "Does the user have permission to view the app 'app_label'?"
         return True  # Allow all modules for simplicity; implement logic as needed.
+
+
+class MyDoctor(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="saved_doctors")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="saved_by_users")
+    saved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'doctor')  # Prevents duplicate entries
+
+    def __str__(self):
+        return f"{self.user.username} - {self.doctor.full_name}"

@@ -19,7 +19,9 @@ import requests
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from .models import User
+from .models import User , MyDoctor
+from doctors.models import Doctor
+from doctors.serializers import DoctorSerializer
 from rest_framework.decorators import api_view, permission_classes
 import json
 
@@ -192,8 +194,6 @@ def all_users(request):
 
 
 
-import logging
-logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
 def get_user_profile(request, userId):
@@ -216,3 +216,59 @@ def get_user_profile(request, userId):
     except User.DoesNotExist:
         # Return 404 if the user does not exist
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+def add_to_my_doctors(request):
+    doctor_id = request.data.get("doctor_id")
+    user_id = request.data.get('userId')
+    user = User.objects.get(id = user_id)
+
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)
+        my_doctor, created = MyDoctor.objects.get_or_create(user=user, doctor=doctor)
+        if created:
+            return Response({"message": "Doctor added to My Doctors"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"message": "Doctor already in My Doctors"}, status=status.HTTP_200_OK)
+    except Doctor.DoesNotExist:
+        return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['GET'])
+def user_favorite_doctors(request, user_id):
+    try:
+        # Retrieve all favorite doctors for the specified user
+        favorite_doctors = MyDoctor.objects.filter(user_id=user_id).select_related('doctor__verification')
+
+        # Check if the user has any favorite doctors
+        if not favorite_doctors.exists():
+            return Response({"message": "No favorite doctors found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Manually build the response data
+        response_data = []
+        for fav in favorite_doctors:
+            doctor = fav.doctor
+            doctor_data = {
+                "full_name": doctor.full_name,
+                "email": doctor.email,
+                "phone": doctor.phone,
+                "gender": doctor.gender,
+                "created_at": doctor.created_at,
+            }
+
+            # Add verification fields if they exist
+            if hasattr(doctor, 'verification') and doctor.verification:
+                doctor_data.update({
+                    "qualification": doctor.verification.qualification,
+                    "specialty": doctor.verification.specialty,
+                    "experience": doctor.verification.experience,
+                    "hospital": doctor.verification.hospital,
+                    "clinic": doctor.verification.clinic,
+                })
+
+            response_data.append(doctor_data)
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Handle any unexpected errors
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

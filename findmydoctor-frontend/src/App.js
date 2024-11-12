@@ -14,6 +14,7 @@ import GoogleCallback from './components/GoogleCallback/GoogleCallback';
 import DoctorList from './pages/User/DoctorList/DoctorList';
 import ProfilePage from './pages/User/Profile/ProfilePage';
 import Navbar from './components/Navbar/Navbar';
+import MyDoctorsPage from './pages/User/MyDoctor.js/MyDoctorsPage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/oauth/callback" element={<GoogleCallback />} /> 
           <Route path="/doctorlist" element={<DoctorList/>} />
           <Route path='/profile' element = {<PrivateRoute><ProfilePage/></PrivateRoute>}/>
+          <Route path='/mydoctor' element = {<PrivateRoute><MyDoctorsPage/></PrivateRoute>}/>
         </Routes>
       </Router>
     </div>
