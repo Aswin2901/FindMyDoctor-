@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer , AllUserSerializer
+from .serializers import UserSerializer , AllUserSerializer , NotificationSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny ,IsAuthenticated
 from rest_framework.exceptions import AuthenticationFailed
@@ -19,11 +19,12 @@ import requests
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from .models import User , MyDoctor
+from .models import User , MyDoctor , Notification
 from doctors.models import Doctor
 from doctors.serializers import DoctorSerializer
 from rest_framework.decorators import api_view, permission_classes
 import json
+
 
 
 
@@ -272,3 +273,37 @@ def user_favorite_doctors(request, user_id):
     except Exception as e:
         # Handle any unexpected errors
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def create_notification(request):
+    try:
+        user = User.objects.get(id=request.data['user_id'])
+        doctor = Doctor.objects.get(id=request.data['doctor_id'])
+        notification = Notification.objects.create(
+            user=user,
+            doctor=doctor,
+            notification_type=request.data['notification_type'],
+            message=request.data['message']
+        )
+        return Response({"message": "Notification created successfully."}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_notifications(request, user_id):
+    notifications = Notification.objects.filter(user_id=user_id).order_by('-created_at')
+    serializer = NotificationSerializer(notifications, many=True)
+    return Response(serializer.data)
+
+@api_view(['PATCH'])
+def mark_notification_as_read(request, notification_id):
+    try:
+        notification = Notification.objects.get(id=notification_id)
+        notification.is_read = True
+        notification.save()
+        return Response({"message": "Notification marked as read."}, status=status.HTTP_200_OK)
+    except Notification.DoesNotExist:
+        return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

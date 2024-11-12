@@ -15,6 +15,7 @@ import DoctorList from './pages/User/DoctorList/DoctorList';
 import ProfilePage from './pages/User/Profile/ProfilePage';
 import Navbar from './components/Navbar/Navbar';
 import MyDoctorsPage from './pages/User/MyDoctor.js/MyDoctorsPage';
+import NotificationPage from './pages/User/Notification/NotificationPage';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/doctorlist" element={<DoctorList/>} />
           <Route path='/profile' element = {<PrivateRoute><ProfilePage/></PrivateRoute>}/>
           <Route path='/mydoctor' element = {<PrivateRoute><MyDoctorsPage/></PrivateRoute>}/>
+          <Route path='/notification' element= {<PrivateRoute><NotificationPage/></PrivateRoute>}/>
         </Routes>
       </Router>
     </div>

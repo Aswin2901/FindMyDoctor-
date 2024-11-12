@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.conf import settings
 from doctors.models import Doctor
+from django.utils import timezone
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -69,3 +70,15 @@ class MyDoctor(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.doctor.full_name}"
+    
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50 , null=True) 
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Notification for {self.user.username} - {self.notification_type}"

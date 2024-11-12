@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User , Notification
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,3 +28,11 @@ class AllUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'full_name', 'email', 'phone', 'state', 'is_active']
+        
+
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'user', 'doctor', 'type', 'message', 'is_read', 'created_at']
