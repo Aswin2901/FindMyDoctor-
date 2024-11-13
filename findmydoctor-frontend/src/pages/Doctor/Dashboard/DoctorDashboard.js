@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DoctorDashboard.css';
 import doctorImage from '../../../Images/doctor-1.jpg';
-import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
+import DoctorNav from '../DoctorNav/DoctorNav';
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
@@ -53,7 +53,7 @@ function DoctorDashboard() {
 
     return (
         <div className='content-body'>
-            <Navbar/>
+            <DoctorNav/>
             <br/>
         
             <div className="doctor-dashboard">
