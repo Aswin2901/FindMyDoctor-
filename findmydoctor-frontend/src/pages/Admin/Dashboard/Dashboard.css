@@ -14,6 +14,49 @@
     padding: 20px;
     background-color: #fff;
 }
+.doctor-card {
+    margin-top: 5px;
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.doctor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.doctor-info {
+    display: flex;
+    gap: 15px; 
+    align-items: flex-start;
+}
+
+.doctor-profile-picture {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #3498db;
+    margin-right: 15px;
+}
+
+.doctor-info h5 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.doctor-info p {
+    margin: 4px 0;
+    font-size: 0.9em;
+    color: #7f8c8d;
+}
 
 .sidebar {
     width: 250px;
@@ -95,185 +138,88 @@
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.new-doctors {
+/* New Doctors & User List */
+.table-container {
     margin-top: 20px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.new-doctors h4 {
+.table-title {
     font-size: 1.8em;
-    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
 }
 
-.doctors-list {
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 20px;
 }
 
-.doctor-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f9f9f9;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.data-table th,
+.data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
-.doctor-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+.data-table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
 }
 
-.doctor-profile-picture {
-    width: 60px;
-    height: 60px;
+.data-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.data-table td img {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
 }
 
-.doctor-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-block, .btn-review {
-    padding: 8px 16px;
+.actions button {
+    padding: 6px 12px;
+    margin-right: 8px;
     border: none;
     cursor: pointer;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 12px;
+    transition: background-color 0.3s;
 }
 
-.btn-block {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.btn-review {
+.actions .btn-review {
     background-color: #3498db;
     color: white;
 }
 
-.btn-block:hover {
-    background-color: #c0392b;
-}
-
-.btn-review:hover {
-    background-color: #2980b9;
-}
-
-.new-doctors {
-    margin-top: 20px;
-}
-
-.doctors-list {
-    margin-top: 20px;
-}
-
-.doctor-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f9f9f9;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.doctor-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.doctor-profile-picture {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-}
-
-.doctor-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-block, .btn-review {
-    padding: 8px 16px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.btn-block {
+.actions .btn-block {
     background-color: #e74c3c;
     color: white;
 }
 
-.btn-review {
-    background-color: #3498db;
-    color: white;
-}
-
-.btn-block:hover {
-    background-color: #c0392b;
-}
-
-.btn-review:hover {
-    background-color: #2980b9;
-}
-
-
-.users-list {
-    margin-top: 20px;
-}
-
-.user-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f9f9f9;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.user-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-block, .btn-unblock {
-    padding: 8px 16px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.btn-block {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.btn-unblock {
+.actions .btn-unblock {
     background-color: #2ecc71;
     color: white;
 }
 
-.btn-block:hover {
+.actions .btn-review:hover {
+    background-color: #2980b9;
+}
+
+.actions .btn-block:hover {
     background-color: #c0392b;
 }
 
-.btn-unblock:hover {
+.actions .btn-unblock:hover {
     background-color: #27ae60;
 }
 
@@ -371,6 +317,69 @@
     margin: 10px;
 }
 
-.Isverified{
+.Isverified {
     margin-left: 15px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+.pagination-controls button {
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination-controls button:hover {
+    background-color: #0056b3;
+}
+
+.pagination-controls button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.pagination-controls span {
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+/* Filter Section */
+.filter-section {
+    width: 200px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.filter-section label {
+    font-size: small;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.filter-section select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.filter-section select:hover {
+    border-color: #007bff;
 }
