@@ -69,7 +69,7 @@ class MyDoctor(models.Model):
         unique_together = ('user', 'doctor')  # Prevents duplicate entries
 
     def __str__(self):
-        return f"{self.user.username} - {self.doctor.full_name}"
+        return f"{self.user.full_name} - {self.doctor.full_name}"
     
 
 class Notification(models.Model):

@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './MyDoctorsPage.css';
-import Navbar from '../../../components/Navbar/Navbar';
-import Footer from '../../../components/Footer/Footer';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -35,8 +33,14 @@ const MyDoctorsPage = () => {
                 await axios.delete(`http://localhost:8000/accounts/${userId}/favorites/${doctorId}`);
                 setFavoriteDoctors((prevDoctors) => prevDoctors.filter((doctor) => doctor.id !== doctorId));
             } catch (error) {
-                console.error("Error removing doctor:", error);
-                setError("Failed to remove doctor.");
+                if(error.response && error.response.status === 404){
+                    setError('')
+                }else{
+                    console.error("Error removing doctor:", error);
+                    
+                    setError("Failed to remove doctor.");
+                }
+                
             }
         }
     };

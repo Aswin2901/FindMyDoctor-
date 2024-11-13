@@ -1,14 +1,8 @@
 import React from 'react';
 import './DoctorNav.css';
 import logo from '../../../Images/icon.svg';
-import { useNavigate } from 'react-router-dom';
 
 const DoctorNav = () => {
-    const navigate = useNavigate();
-    
-    const handleNavigate = (path) => {
-        navigate(path);
-    };
 
     return (
         <nav className="navbar">

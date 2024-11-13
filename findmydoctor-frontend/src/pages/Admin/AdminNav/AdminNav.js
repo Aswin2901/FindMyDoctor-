@@ -1,14 +1,8 @@
 import React from 'react';
 import './AdminNav.css';
 import logo from '../../../Images/icon.svg';
-import { useNavigate } from 'react-router-dom';
 
 const AdminNav = () => {
-    const navigate = useNavigate();
-    
-    const handleNavigate = (path) => {
-        navigate(path);
-    };
 
     return (
         <nav className="navbar">
