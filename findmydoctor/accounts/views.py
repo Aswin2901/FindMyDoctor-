@@ -9,6 +9,7 @@ from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from django.core.cache import cache
 from social_django.utils import psa
@@ -24,7 +25,7 @@ from doctors.models import Doctor
 from doctors.serializers import DoctorSerializer
 from rest_framework.decorators import api_view, permission_classes
 import json
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 
@@ -90,8 +91,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             response = super().post(request, *args, **kwargs)
         except AuthenticationFailed as e:
             return Response({'error': str(e)}, status=400)
-
-        return Response({
+        
+        Response = ({
             'access': response.data['access'],
             'refresh': response.data['refresh'],
             'user': {
@@ -100,6 +101,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 'gender': request.data.get('gender'),
             }
         })
+        print(Response)
+
+        return Response
 
 
 
@@ -117,76 +121,70 @@ def google_login(request):
     return Response({'auth_url': auth_url})
 
 
-@api_view(['GET'])
-def google_callback(request):
-    code = request.GET.get('code')
+class GoogleCallbackView(APIView):
+    def get(self, request, *args, **kwargs):
+        code = request.GET.get('code')
 
-    if not code:
-        return Response({'error': 'Authorization code not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if not code:
+            return Response({'error': 'Authorization code not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        # Exchange the authorization code for tokens and user info
-        flow = Flow.from_client_secrets_file(
-            os.getenv('path_to_client_secret_json'),
-            scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
-            redirect_uri='http://localhost:3000/oauth/callback/'
-        )
-        
-        flow.fetch_token(code=code)
-        credentials = flow.credentials
-        access_token = credentials.token
-        refresh_token = credentials.refresh_token  
-        
-        print('refresh_token :' , refresh_token )
-
-        # Check if refresh_token is None and handle it
-        if refresh_token is None:
-            return Response({'error': 'Refresh token was not provided. Re-authentication may be required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Get user info from Google
-        user_info_endpoint = 'https://www.googleapis.com/oauth2/v2/userinfo'
-        response = requests.get(user_info_endpoint, headers={'Authorization': f'Bearer {access_token}'})
-        user_info = response.json()
-
-        email = user_info['email']
-        full_name = user_info.get('name', '')
-        gender = user_info.get('gender', 'Not specified')
-        
-        print(email, full_name, gender)
-
-        # Check if the user already exists
         try:
-            user = User.objects.get(email=email)
-            if user:
-                return Response({
-                    'access_token': access_token,
-                    'refresh_token': refresh_token,
-                    'user_info': user_info,
-                    'userId': user.id,
-                    'email': email,
-                    'message': 'Google OAuth login successful'
-                })    
             
-        except User.DoesNotExist:
-            user = User.objects.create(
-                email=email,
-                full_name=full_name,
+            flow = Flow.from_client_secrets_file(
+                os.getenv('path_to_client_secret_json'),  # Preferably use settings for sensitive paths
+                scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
+                redirect_uri='http://localhost:3000/oauth/callback/'
             )
-            user.set_unusable_password()  
-            user.save()
-            print('user saved')
+            
+            flow.fetch_token(code=code)
+            credentials = flow.credentials
+            access_token = credentials.token
+            refresh_token = credentials.refresh_token
 
-            return Response({
-                'access_token': access_token,
-                'refresh_token': refresh_token,
-                'user_info': user_info,
-                'message': 'Google OAuth login successful'
-            })
+            # Check if refresh_token is None and handle it
+            if refresh_token is None:
+                return Response({'error': 'Refresh token was not provided. Re-authentication may be required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    except Exception as e:
-        return Response({'error': f"An error occurred: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+            # Get user info from Google
+            user_info_endpoint = 'https://www.googleapis.com/oauth2/v2/userinfo'
+            response = requests.get(user_info_endpoint, headers={'Authorization': f'Bearer {access_token}'})
+            user_info = response.json()
 
+            email = user_info['email']
+            full_name = user_info.get('name', '')
+            gender = user_info.get('gender', 'Not specified')
 
+            # Check if the user already exists
+            try:
+                user = User.objects.get(email=email)
+                refresh = RefreshToken.for_user(user) 
+                is_doctor = hasattr(user, 'doctor')  # Check if the user is also a doctor
+            except User.DoesNotExist:
+                user = User.objects.create(
+                    email=email,
+                    full_name=full_name,
+                )
+                user.set_unusable_password()
+                user.save()
+                is_doctor = False
+                refresh = RefreshToken.for_user(user) 
+
+            # Prepare the response data
+            response_data = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'is_doctor': is_doctor,
+                'id': user.id,  # User ID
+                'doctor_id': user.doctor.id if is_doctor else None,  # Doctor ID if applicable
+                'is_superuser': user.is_superuser,
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': f"An error occurred: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
 @api_view(['GET'])
 def all_users(request):
     users = User.objects.all()

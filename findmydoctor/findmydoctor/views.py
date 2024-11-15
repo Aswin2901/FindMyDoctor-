@@ -37,6 +37,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 response.data['is_superuser'] = user.is_superuser
                 response.data['id'] = user.id  # Include user ID
                 response.data['is_doctor'] = False
+                print(response.data)
                 return response
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)

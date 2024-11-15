@@ -5,15 +5,17 @@ import Footer from '../../../components/Footer/Footer';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../../../slices/authSlice';
 import MyDoctorsPage from '../MyDoctor.js/MyDoctorsPage';
 import defaultProfilePicture from '../../../Images/profile-icon.png'
+import { useAuth } from '../../../contexts/AuthContext';
 
 const ProfilePage = () => {
+    const { logout , auth } = useAuth()
+    console.log(auth)
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const userId = useSelector((state) => state.auth.user?.id);
-    const [activeSection, setActiveSection] = useState("profile"); // Track active section (Profile or My Doctors)
+    const userId = auth.user.id;
+    const [activeSection, setActiveSection] = useState("profile"); 
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [userData, setUserData] = useState({
@@ -71,9 +73,7 @@ const ProfilePage = () => {
     const handleLogout = () => {
         const confirmLogout = window.confirm("Do you want to log out?");
         if (confirmLogout) {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            dispatch(logout());
+            logout()
             navigate('/');
         }
     };

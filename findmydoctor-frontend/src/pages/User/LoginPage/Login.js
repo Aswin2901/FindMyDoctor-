@@ -4,10 +4,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../../../components/Navbar/Navbar.js';
 import Footer from '../../../components/Footer/Footer.js';
 import { useDispatch } from 'react-redux';
-import { login } from '../../../slices/authSlice';
 import './Login.css';
+import { useAuth } from '../../../contexts/AuthContext.js';
 
 const Login = () => {
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -25,57 +26,25 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/token/', {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      // Store tokens in localStorage
-      localStorage.setItem('access_token', response.data.access);
-      localStorage.setItem('refresh_token', response.data.refresh);
-      if (response.data.is_doctor) {
-            localStorage.setItem('doctor_id', response.data.doctor_id);
-        }
-
-      // Dispatch Redux action to update global auth state
-      dispatch(login({
-        user: {
-            id: response.data.id,  // Pass the ID here
-            email: formData.email,
-            isSuperUser: response.data.is_superuser,
-        },
-        role: response.data.is_superuser ? 'admin' : 'user',
-    }));
-
+      const response = await axios.post('http://localhost:8000/token/', formData);
+      login(response.data);
       setSuccessMessage('Login successful! Redirecting...');
-      setErrorMessage('');
-
       setTimeout(() => {
-        let destination = '/home'; 
-    
-        if (response.data.is_doctor) {
-            destination = '/doctordashboard';
-        } else if (response.data.is_superuser) {
-            destination = '/admin/dashboard';
-        }
-    
-        // Navigate to the determined destination
+        let destination = '/home';
+        if (response.data.is_doctor) destination = '/doctordashboard';
+        else if (response.data.is_superuser) destination = '/admin/dashboard';
         navigate(destination);
-    
-        window.history.replaceState(null, '', destination);
-    }, 2000);
-
+      }, 2000);
     } catch (error) {
       console.error('Login error:', error.response ? error.response.data : error.message);
       setErrorMessage('Invalid email or password!');
-      setSuccessMessage('');
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/accounts/oauth/login/');
-      window.location.href = response.data.auth_url;
+      const response = await axios.get('http://localhost:8000/accounts/oauth/login/'); // Adjusted endpoint to fetch Google login URL
+      window.location.href = response.data.auth_url; // Redirect to the Google login page
     } catch (error) {
       console.error('Google login failed', error);
     }
@@ -119,7 +88,11 @@ const Login = () => {
 
         {/* Google Login Button */}
         <button onClick={handleGoogleLogin} className="google-login-button">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="Google logo" />
+          <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" 
+            alt="Google logo" 
+            className="google-icon"
+          />
           <span>Login with Google</span>
         </button>
       </div>

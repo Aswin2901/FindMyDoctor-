@@ -1,15 +1,14 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useAuth } from '../../contexts/AuthContext'; // Use your AuthContext
 
 const PrivateRoute = ({ children }) => {
-    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-    const accessToken = localStorage.getItem('access_token'); // Get the access token from local storage
+    const { auth } = useAuth();
 
-    // Check if the user is authenticated via Redux or has a valid access token in local storage
-    const isUserAuthenticated = isAuthenticated || !!accessToken;
+    // Check if the user is authenticated
+    const isAuthenticated = !!auth.accessToken;
 
-    return isUserAuthenticated ? children : <Navigate to="/" />;
+    return isAuthenticated ? children : <Navigate to="/" />;
 };
 
 export default PrivateRoute;

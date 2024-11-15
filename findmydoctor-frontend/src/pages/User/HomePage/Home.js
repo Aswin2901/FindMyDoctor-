@@ -9,11 +9,11 @@ import doctorpatient from '../../../Images/service doctor -1.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faCalendarAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const Home = () => {
-  const userId = useSelector((state) => state.auth.user?.id);
-  console.log('userId : ', userId); 
+  const auth = useAuth()
+  console.log('userId : ', auth.auth.user.id); 
 
   const navigate = useNavigate()
 
