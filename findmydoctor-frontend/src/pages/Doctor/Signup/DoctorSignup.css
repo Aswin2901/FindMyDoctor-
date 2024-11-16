@@ -92,6 +92,12 @@
   margin-top: 10px;
 }
 
+.field-error {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
 /* Success message styling */
 .success-message {
   color: #28a745;

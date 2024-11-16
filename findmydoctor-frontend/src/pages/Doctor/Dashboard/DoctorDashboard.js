@@ -5,12 +5,14 @@ import './DoctorDashboard.css';
 import doctorImage from '../../../Images/doctor-1.jpg';
 import Footer from '../../../components/Footer/Footer';
 import DoctorNav from '../DoctorNav/DoctorNav';
+import { useAuth } from '../../../contexts/AuthContext';
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
     const [formSubmitted, setFormSubmitted] = useState(false);
     const navigate = useNavigate();
-    const doctorId = localStorage.getItem('doctor_id');
+    const auth = useAuth()
+    const doctorId = auth.auth.user.id
 
     useEffect(() => {
         async function checkVerification() {

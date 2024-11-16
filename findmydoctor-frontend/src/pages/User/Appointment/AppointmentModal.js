@@ -2,67 +2,102 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './AppointmentModal.css';
 import { useSelector } from 'react-redux';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const AppointmentModal = ({ doctorId, closeModal }) => {
-
-    const userId = useSelector((state) => state.auth.user?.id);
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [reason, setReason] = useState('');
+  const auth = useAuth()
+  const userId = auth.auth.user.id
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [serverError, setServerError] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Validation schema using Yup
+  const validationSchema = Yup.object({
+    date: Yup.date().required('Date is required'),
+    time: Yup.string().required('Time is required'),
+    reason: Yup.string()
+      .min(10, 'Reason must be at least 10 characters')
+      .required('Reason for visit is required'),
+  });
+
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
-    console.log(userId)
+    setServerError(null);
+
     try {
       await axios.post('http://localhost:8000/appointments/create/', {
         doctor: doctorId,
-        patient: userId,  
-        date,
-        time,
-        reason_for_visit: reason,
+        patient: userId,
+        date: values.date,
+        time: values.time,
+        reason_for_visit: values.reason,
       });
 
+      resetForm();
       closeModal();
       alert('Appointment created successfully!');
     } catch (err) {
       console.error('Error creating appointment:', err);
-      setError('Failed to create appointment. Please try again.');
+      setServerError(
+        err.response?.data?.message || 'Failed to create appointment. Please try again.'
+      );
     } finally {
       setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="appointment-modal-overlay">
+    <div
+      className="appointment-modal-overlay"
+      role="dialog"
+      aria-labelledby="appointment-modal-title"
+      aria-describedby="appointment-modal-description"
+    >
       <div className="appointment-modal">
-        <h2>Book an Appointment</h2>
-        <form onSubmit={handleSubmit}>
-          <label>Date:</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        <h2 id="appointment-modal-title">Book an Appointment</h2>
 
-          <label>Time:</label>
-          <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
+        <Formik
+          initialValues={{ date: '', time: '', reason: '' }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <label htmlFor="date">Date:</label>
+              <Field type="date" name="date" id="date" />
+              <ErrorMessage name="date" component="div" className="error" />
 
-          <label>Reason for Visit:</label>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Describe your reason for visit"
-            required
-          ></textarea>
+              <label htmlFor="time">Time:</label>
+              <Field type="time" name="time" id="time" />
+              <ErrorMessage name="time" component="div" className="error" />
 
-          {error && <p className="error">{error}</p>}
+              <label htmlFor="reason">Reason for Visit:</label>
+              <Field
+                as="textarea"
+                name="reason"
+                id="reason"
+                placeholder="Describe your reason for visit"
+              />
+              <ErrorMessage name="reason" component="div" className="error" />
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Booking...' : 'Book Appointment'}
-          </button>
-          <button type="button" onClick={closeModal} className="close-button">
-            Close
-          </button>
-        </form>
+              {serverError && <p className="error">{serverError}</p>}
+
+              <button type="submit" disabled={isSubmitting || loading}>
+                {loading ? 'Booking...' : 'Book Appointment'}
+              </button>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="close-button"
+                disabled={loading}
+              >
+                Close
+              </button>
+            </Form>
+          )}
+        </Formik>
       </div>
     </div>
   );

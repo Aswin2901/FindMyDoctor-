@@ -61,7 +61,9 @@ def doctor_verification(request, doctor_id):
     try:
         doctor = Doctor.objects.get(id = doctor_id)
         print("Request Data:", request.data)
-        print("Request Files:", request.FILES)
+        print("Request FILES:", request.FILES)
+
+        
         
         verification_data = {
             'doctor': doctor,  

@@ -48,11 +48,20 @@ input {
   background-color: #45a049;
 }
 
-.error-message {
+.field-error {
   color: red;
   font-size: 0.9rem;
-  text-align: center;
-  margin-bottom: 1rem;
+  margin-top: 4px;
+}
+.success-message {
+  color: green;
+  font-size: 1rem;
+  margin-top: 8px;
+}
+.error-message {
+  color: red;
+  font-size: 1rem;
+  margin-top: 8px;
 }
 
 .otp-form {
