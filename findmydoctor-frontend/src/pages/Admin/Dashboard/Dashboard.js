@@ -253,17 +253,17 @@ const Dashboard = () => {
 
                             <div className="document-thumbnails">
                                 <div className="document-thumbnail">
-                                    <a href={selectedDoctor.id_proof} target="_blank" rel="noopener noreferrer">
+                                    <a href={`http://localhost:8000${selectedDoctor.id_proof}`} target="_blank" rel="noopener noreferrer">
                                         <img src={`http://localhost:8000${selectedDoctor.id_proof}`} alt="ID Proof" />
                                     </a>
                                 </div>
                                 <div className="document-thumbnail">
-                                    <a href={selectedDoctor.medical_license} target="_blank" rel="noopener noreferrer">
+                                    <a href={`http://localhost:8000${selectedDoctor.medical_license}`} target="_blank" rel="noopener noreferrer">
                                         <img src={`http://localhost:8000${selectedDoctor.medical_license}`} alt="Medical License" />
                                     </a>
                                 </div>
                                 <div className="document-thumbnail">
-                                    <a href={selectedDoctor.degree_certificate} target="_blank" rel="noopener noreferrer">
+                                    <a href={`http://localhost:8000${selectedDoctor.degree_certificate}`} target="_blank" rel="noopener noreferrer">
                                         <img src={`http://localhost:8000${selectedDoctor.degree_certificate}`} alt="Degree Certificate" />
                                     </a>
                                 </div>
