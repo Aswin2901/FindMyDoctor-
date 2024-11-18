@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Doctor , Verification
+from .models import Doctor , Verification , AppointmentAvailability , Leave , BreakTime
 from django.contrib.auth.hashers import make_password , check_password
 from rest_framework import serializers
 
@@ -97,3 +97,18 @@ class GetDoctorSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'email', 'phone', 'gender', 'profile_picture', 
             'qualification', 'specialty', 'experience', 'hospital', 'clinic'
         ]
+        
+class AppointmentAvailabilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppointmentAvailability
+        fields = '__all__'
+
+class LeaveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Leave
+        fields = '__all__'
+
+class BreakTimeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BreakTime
+        fields = '__all__'

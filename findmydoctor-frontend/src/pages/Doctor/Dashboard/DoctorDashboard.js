@@ -1,25 +1,28 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './DoctorDashboard.css';
 import doctorImage from '../../../Images/doctor-1.jpg';
 import Footer from '../../../components/Footer/Footer';
 import DoctorNav from '../DoctorNav/DoctorNav';
 import { useAuth } from '../../../contexts/AuthContext';
+import AppointmentManagement from '../AppointmentManagement/AppointmentManagement'; 
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
     const [formSubmitted, setFormSubmitted] = useState(false);
+    const [activeMenu, setActiveMenu] = useState('dashboard'); // Track active menu
     const navigate = useNavigate();
-    const auth = useAuth()
-    const doctorId = auth.auth.user.id
+    const auth = useAuth();
+    const [ doctorId , setdoctorId ] = useState(null)
+
+
 
     useEffect(() => {
+        setdoctorId(auth.auth.user.id);
         async function checkVerification() {
             try {
                 const response = await axios.get(`http://127.0.0.1:8000/doctors/verification/${doctorId}/`);
-                console.log('is_verified' , response.data.is_verified)
-                console.log('form ' , response.data.form_submitted)
                 setIsVerified(response.data.is_verified);
                 setFormSubmitted(response.data.form_submitted);
             } catch (error) {
@@ -54,15 +57,24 @@ function DoctorDashboard() {
     }
 
     return (
-        <div className='content-body'>
-            <DoctorNav/>
-            <br/>
-        
+        <div className="content-body">
+            <DoctorNav />
             <div className="doctor-dashboard">
+                {/* Sidebar */}
                 <aside className="dashboard-sidebar">
                     <ul className="sidebar-menu">
-                        <li className="menu-item active">Dashboard</li>
-                        <li className="menu-item">Appointment Management</li>
+                        <li 
+                            className={`menu-item ${activeMenu === 'dashboard' ? 'active' : ''}`} 
+                            onClick={() => setActiveMenu('dashboard')}
+                        >
+                            Dashboard
+                        </li>
+                        <li 
+                            className={`menu-item ${activeMenu === 'appointmentManagement' ? 'active' : ''}`} 
+                            onClick={() => setActiveMenu('appointmentManagement')}
+                        >
+                            Appointment Management
+                        </li>
                         <li className="menu-item">Appointment History</li>
                         <li className="menu-item">Notifications</li>
                         <li className="menu-item">Time-Slot Management</li>
@@ -72,42 +84,46 @@ function DoctorDashboard() {
                     </ul>
                 </aside>
 
+                {/* Main Content */}
                 <main className="dashboard-main-content">
-                    <header className="dashboard-header">
-                        <div className="welcome-section">
-                            <h1>Welcome to Find My Doctor</h1>
-                            <p>We are committed to delivering exceptional care and making a difference in the lives of our patients. We’re excited to have you on board!</p>
-                        </div>
-                        <img src={doctorImage} alt="Doctor Profile" className="doctor-profile-image" />
-                    </header>
-
-                    <div className="dashboard-content">
-                        <div className="categories">
-                            <div className="category-card">New Appointment</div>
-                            <div className="category-card">Total Appointment</div>
-                        </div>
-
-                        <div className="appointments-section">
-                            <div className="calendar">
-                                <h4>Calendar</h4>
-                                <p>[Calendar Component]</p>
-                            </div>
-                            <div className="my-appointments">
-                                <h4>My Appointments</h4>
-                                <div className="appointment-card">
-                                    <p>Patient: Aravind Gopal</p>
-                                    <p>Date: 29/01/2024</p>
-                                    <p>Time: 10:30</p>
-                                    <p>Status: Pending</p>
+                    {activeMenu === 'dashboard' && (
+                        <div>
+                            <header className="dashboard-header">
+                                <div className="welcome-section">
+                                    <h1>Welcome to Find My Doctor</h1>
+                                    <p>We are committed to delivering exceptional care and making a difference in the lives of our patients. We’re excited to have you on board!</p>
                                 </div>
-                                {/* Repeat similar blocks for other appointments */}
+                                <img src={doctorImage} alt="Doctor Profile" className="doctor-profile-image" />
+                            </header>
+
+                            <div className="dashboard-content">
+                                <div className="categories">
+                                    <div className="category-card">New Appointment</div>
+                                    <div className="category-card">Total Appointment</div>
+                                </div>
+
+                                <div className="appointments-section">
+                                    <div className="calendar">
+                                        <h4>Calendar</h4>
+                                        <p>[Calendar Component]</p>
+                                    </div>
+                                    <div className="my-appointments">
+                                        <h4>My Appointments</h4>
+                                        <div className="appointment-card">
+                                            <p>Patient: Aravind Gopal</p>
+                                            <p>Date: 29/01/2024</p>
+                                            <p>Time: 10:30</p>
+                                            <p>Status: Pending</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
+                    {activeMenu === 'appointmentManagement' && <AppointmentManagement />}
                 </main>
             </div>
-            <br/>
-            <Footer/>
+            <Footer />
         </div>
     );
 }

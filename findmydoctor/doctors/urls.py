@@ -1,6 +1,16 @@
 from django.urls import path
-from .views import doctor_signup , doctor_login , recent_doctors , get_all_doctors , doctor_verification_status , doctor_verification , DoctorVerificationDetailView , VerifyDoctor , get_verified_doctors
-
+from .views import ( doctor_signup ,
+                    doctor_login ,
+                    recent_doctors ,
+                    get_all_doctors ,
+                    doctor_verification_status ,
+                    doctor_verification ,
+                    DoctorVerificationDetailView ,
+                    VerifyDoctor , get_verified_doctors,
+                    mark_availability,
+                    LeaveView,
+                    BreakTimeView
+)
 urlpatterns = [
     path('register/', doctor_signup, name='doctor-signup'),
     path('login/', doctor_login, name='doctor-login'),
@@ -11,5 +21,8 @@ urlpatterns = [
     path('review/<int:doctor_id>/', DoctorVerificationDetailView.as_view(), name='doctor-verification-detail'),
     path('makeverify/<int:doctor_id>/', VerifyDoctor, name='verify-doctor'),
     path('getdoctors/', get_verified_doctors , name='get_verified_doctors' ),
+    path('availability/', mark_availability, name='appointment-availability'),
+    path('leave/', LeaveView.as_view(), name='leave'),
+    path('break-time/', BreakTimeView.as_view(), name='break-time'),
     
 ]

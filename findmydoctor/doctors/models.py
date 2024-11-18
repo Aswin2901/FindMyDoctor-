@@ -36,3 +36,30 @@ class Verification(models.Model):
 
     def __str__(self):
         return f"{self.doctor.email}'s Verification"
+    
+class AppointmentAvailability(models.Model):
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='availabilities')
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    duration = models.TimeField(null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.doctor.full_name} - {self.date}"
+
+class Leave(models.Model):
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='leaves')
+    date = models.DateField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.doctor.full_name} - Leave on {self.date}"
+
+class BreakTime(models.Model):
+    availability = models.ForeignKey(AppointmentAvailability, on_delete=models.CASCADE, related_name='break_times')
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return f"Break for {self.availability.doctor.full_name} on {self.availability.date}"

@@ -1,10 +1,24 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import DoctorSignupSerializer , DoctorLoginSerializer ,DoctorSerializer , VerificationSerializer, DoctorReviewSerializer , GetDoctorSerializer
-from .models import Doctor , Verification
+from rest_framework.parsers import JSONParser
+from datetime import datetime
+from .serializers import (
+                          DoctorSignupSerializer ,
+                          DoctorLoginSerializer ,
+                          DoctorSerializer , 
+                          VerificationSerializer,
+                          DoctorReviewSerializer ,
+                          GetDoctorSerializer,
+                          AppointmentAvailabilitySerializer,
+                          BreakTimeSerializer,
+                          LeaveSerializer)
+from .models import Doctor , Verification , AppointmentAvailability , BreakTime , Leave
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+
+
 
 @api_view(['POST'])
 def doctor_signup(request):
@@ -135,3 +149,97 @@ def get_verified_doctors(request):
     verified_doctors = Doctor.objects.filter(is_verified=True)
     serializer = GetDoctorSerializer(verified_doctors, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def mark_availability(request):
+    try:
+        data = JSONParser().parse(request)
+        user_id = data.get('userId')
+        date = data.get('date')
+        duration = data.get('duration')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        breaks = data.get('breaks', [])
+
+        # Validate inputs
+        if not user_id or not date or not start_time or not end_time:
+            raise ValueError("Missing required fields: userId, date, start_time, or end_time.")
+        if not isinstance(date, str) or not isinstance(start_time, str) or not isinstance(end_time, str):
+            raise ValueError("Date, start_time, and end_time must be strings.")
+
+        # Parse date and time fields
+        parsed_date = datetime.strptime(date, "%Y-%m-%d").date()
+        parsed_start_time = datetime.strptime(start_time, "%I:%M %p").time()
+        parsed_end_time = datetime.strptime(end_time, "%I:%M %p").time()
+        
+        
+        print('duration' , duration)
+        print("Parsed date:", parsed_date)
+        print("Parsed start time:", parsed_start_time)
+        print("Parsed end time:", parsed_end_time)
+        
+
+        # Validate break times
+        parsed_breaks = []
+        for break_time in breaks:
+            break_start = datetime.strptime(break_time['start'], "%I:%M %p").time()
+            break_end = datetime.strptime(break_time['end'], "%I:%M %p").time()
+            parsed_breaks.append({'start': break_start, 'end': break_end})
+
+        # Get doctor instance
+        doctor = Doctor.objects.get(id=user_id)
+
+        # Save availability
+        availability = AppointmentAvailability.objects.create(
+            doctor=doctor,
+            date=parsed_date,
+            duration=str(duration),
+            start_time=parsed_start_time,
+            end_time=parsed_end_time,
+        )
+
+        print("Parsed breaks:", parsed_breaks)
+        
+        # Save break times
+        for break_time in parsed_breaks:
+            BreakTime.objects.create(
+                availability=availability,
+                start_time=break_time['start'],
+                end_time=break_time['end']
+            )
+
+        return JsonResponse({'message': 'Availability marked successfully!'}, status=201)
+
+    except ValueError as ve:
+        print(f"ValueError: {ve}")
+        return JsonResponse({'error': str(ve)}, status=400)
+    except Exception as e:
+        print(f"Exception: {e}")
+        return JsonResponse({'error': str(e)}, status=400)
+
+class LeaveView(APIView):
+    def post(self, request):
+        doctor = get_object_or_404(Doctor, email=request.data.get('email'))
+        data = {
+            "doctor": doctor.id,
+            "date": request.data.get("date"),
+        }
+        serializer = LeaveSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class BreakTimeView(APIView):
+    def post(self, request):
+        availability = get_object_or_404(AppointmentAvailability, id=request.data.get('availability_id'))
+        data = {
+            "availability": availability.id,
+            "start_time": request.data.get("start_time"),
+            "end_time": request.data.get("end_time"),
+        }
+        serializer = BreakTimeSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
