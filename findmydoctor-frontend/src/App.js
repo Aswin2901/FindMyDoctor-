@@ -16,12 +16,14 @@ import ProfilePage from './pages/User/Profile/ProfilePage';
 import Navbar from './components/Navbar/Navbar';
 import MyDoctorsPage from './pages/User/MyDoctor.js/MyDoctorsPage';
 import NotificationPage from './pages/User/Notification/NotificationPage';
+import Intro from './pages/Intro';
 
 function App() {
   return (
     <div className="App">
       <Router>
         <Routes>
+          <Route path='/intro' element={<Intro/>}/>
           <Route path='/navbar' element={<Navbar/>}/>
           <Route path="/signup" element={<Signup />} />
           <Route path="/" element={<Login />} />
