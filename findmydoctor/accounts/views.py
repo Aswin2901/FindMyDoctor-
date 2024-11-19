@@ -302,6 +302,8 @@ def mark_notification_as_read(request, notification_id):
         notification.save()
         return Response({"message": "Notification marked as read."}, status=status.HTTP_200_OK)
     except Notification.DoesNotExist:
+        print('does not exist')
         return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
+        print(e)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

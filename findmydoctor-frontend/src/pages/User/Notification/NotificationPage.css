@@ -2,10 +2,13 @@
 .notification-page {
     padding: 20px;
     max-width: 800px;
+    height: 100%;
     margin: 0 auto;
   }
   
   .notification-list {
+    width: 95%;
+    
     display: flex;
     flex-direction: column;
     gap: 15px;

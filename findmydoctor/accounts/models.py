@@ -81,4 +81,4 @@ class Notification(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Notification for {self.user.username} - {self.notification_type}"
+        return f"Notification for {self.user.full_name} - {self.type}"

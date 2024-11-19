@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './NotificationPage.css';
-import { useSelector } from 'react-redux';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const NotificationPage = () => {
-    const userId = useSelector((state) => state.auth.user?.id)
+  const auth = useAuth()
+  const userId = auth.auth.user.id
+  
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/accounts/get-notification/${userId}/`);
-        setNotifications(response.data);
+        if (userId){
+          const response = await axios.get(`http://localhost:8000/accounts/get-notification/${userId}/`);
+          setNotifications(response.data);
+        }
+        
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
