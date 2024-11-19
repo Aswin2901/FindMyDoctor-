@@ -61,3 +61,9 @@
   .appointment-modal button:disabled {
     background-color: #ddd;
   }
+
+  .success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+  }

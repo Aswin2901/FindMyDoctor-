@@ -14,6 +14,7 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [serverError, setServerError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null); // State to hold success message
 
   // Validation schema using Yup
   const validationSchema = Yup.object({
@@ -35,8 +36,7 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
           doctorId: doctorId,
           date: date
         }
-      }
-          );
+      });
       setAvailableSlots(response.data.available_slots || []);
     } catch (err) {
       console.error('Error fetching slots:', err);
@@ -62,8 +62,11 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
       });
 
       resetForm();
-      closeModal();
-      alert('Appointment created successfully!');
+      setSuccessMessage('Appointment created successfully!'); // Set the success message here
+      setTimeout(() => {
+        setSuccessMessage(null); // Clear the success message after a few seconds
+        closeModal();
+      }, 5000);
     } catch (err) {
       console.error('Error creating appointment:', err);
       setServerError(
@@ -130,6 +133,10 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
               <ErrorMessage name="reason" component="div" className="error" />
 
               {serverError && <p className="error">{serverError}</p>}
+
+              {successMessage && (
+                <p className="success-message">{successMessage}</p> // Display success message
+              )}
 
               <button type="submit" disabled={isSubmitting || loading}>
                 {loading ? 'Booking...' : 'Book Appointment'}
