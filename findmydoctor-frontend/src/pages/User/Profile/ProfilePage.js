@@ -3,19 +3,17 @@ import './ProfilePage.css';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
 import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import MyDoctorsPage from '../MyDoctor.js/MyDoctorsPage';
-import defaultProfilePicture from '../../../Images/profile-icon.png'
+import defaultProfilePicture from '../../../Images/profile-icon.png';
 import { useAuth } from '../../../contexts/AuthContext';
+import * as yup from 'yup'; // Importing yup for validation
 
 const ProfilePage = () => {
-    const { logout , auth } = useAuth()
-    console.log(auth)
-    const dispatch = useDispatch();
+    const { logout, auth } = useAuth();
     const navigate = useNavigate();
     const userId = auth.user.id;
-    const [activeSection, setActiveSection] = useState("profile"); 
+    const [activeSection, setActiveSection] = useState("profile");
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [userData, setUserData] = useState({
@@ -26,6 +24,16 @@ const ProfilePage = () => {
         address: '',
     });
     const [error, setError] = useState(null);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [successMessage, setSuccessMessage] = useState('');
+
+    // Validation schema using yup
+    const validationSchema = yup.object().shape({
+        name: yup.string().required('Name is required.'),
+        gender: yup.string().oneOf(['Male', 'Female'], 'Please select a valid gender.').required('Gender is required.'),
+        mobile: yup.string().matches(/^\d{10}$/, 'Mobile number must be 10 digits.').required('Mobile number is required.'),
+        address: yup.string().required('Address is required.'),
+    });
 
     useEffect(() => {
         if (!userId) {
@@ -62,6 +70,9 @@ const ProfilePage = () => {
     }, [userId]);
 
     const handleEditToggle = () => {
+        if (isEditing) {
+            updateUserProfile();
+        }
         setIsEditing(!isEditing);
     };
 
@@ -70,10 +81,52 @@ const ProfilePage = () => {
         setUserData((prevData) => ({ ...prevData, [name]: value }));
     };
 
+    const updateUserProfile = async () => {
+        try {
+            // Validate the data using yup
+            await validationSchema.validate(userData, { abortEarly: false });
+            setFieldErrors({}); // Clear previous field errors
+
+            const accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                setError('Access token is missing.');
+                return;
+            }
+
+            const response = await axios.patch(
+                `http://localhost:8000/accounts/update_user_profile/${userId}/`,
+                {
+                    full_name: userData.name,
+                    phone: userData.mobile,
+                    gender: userData.gender,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            setSuccessMessage(response.data.message);
+            setTimeout(() => setSuccessMessage(''), 3000); // Clear success message after 3 seconds
+        } catch (error) {
+            if (error.name === 'ValidationError') {
+                // Handle validation errors from yup
+                const errors = {};
+                error.inner.forEach((err) => {
+                    errors[err.path] = err.message;
+                });
+                setFieldErrors(errors);
+            } else {
+                setError('Failed to update profile.');
+                setTimeout(() => setError(''), 3000); // Clear error message after 3 seconds
+            }
+        }
+    };
+
     const handleLogout = () => {
         const confirmLogout = window.confirm("Do you want to log out?");
         if (confirmLogout) {
-            logout()
+            logout();
             navigate('/');
         }
     };
@@ -89,12 +142,15 @@ const ProfilePage = () => {
             <div className="info-field">
                 <label>Name:</label>
                 {isEditing ? (
-                    <input
-                        type="text"
-                        name="name"
-                        value={userData.name}
-                        onChange={handleInputChange}
-                    />
+                    <>
+                        <input
+                            type="text"
+                            name="name"
+                            value={userData.name}
+                            onChange={handleInputChange}
+                        />
+                        {fieldErrors.name && <p className="error-message">{fieldErrors.name}</p>}
+                    </>
                 ) : (
                     <span>{userData.name}</span>
                 )}
@@ -123,6 +179,7 @@ const ProfilePage = () => {
                             />
                             Female
                         </label>
+                        {fieldErrors.gender && <p className="error-message">{fieldErrors.gender}</p>}
                     </>
                 ) : (
                     <span>{userData.gender}</span>
@@ -130,26 +187,20 @@ const ProfilePage = () => {
             </div>
             <div className="info-field">
                 <label>Email:</label>
-                {isEditing ? (
-                    <input
-                        type="email"
-                        name="email"
-                        value={userData.email}
-                        onChange={handleInputChange}
-                    />
-                ) : (
-                    <span>{userData.email}</span>
-                )}
+                <span>{userData.email}</span>
             </div>
             <div className="info-field">
                 <label>Mobile:</label>
                 {isEditing ? (
-                    <input
-                        type="text"
-                        name="mobile"
-                        value={userData.mobile}
-                        onChange={handleInputChange}
-                    />
+                    <>
+                        <input
+                            type="text"
+                            name="mobile"
+                            value={userData.mobile}
+                            onChange={handleInputChange}
+                        />
+                        {fieldErrors.mobile && <p className="error-message">{fieldErrors.mobile}</p>}
+                    </>
                 ) : (
                     <span>{userData.mobile}</span>
                 )}
@@ -157,22 +208,27 @@ const ProfilePage = () => {
             <div className="info-field">
                 <label>Address:</label>
                 {isEditing ? (
-                    <input
-                        type="text"
-                        name="address"
-                        value={userData.address}
-                        onChange={handleInputChange}
-                    />
+                    <>
+                        <input
+                            type="text"
+                            name="address"
+                            value={userData.address}
+                            onChange={handleInputChange}
+                        />
+                        {fieldErrors.address && <p className="error-message">{fieldErrors.address}</p>}
+                    </>
                 ) : (
                     <span>{userData.address}</span>
                 )}
             </div>
+            {successMessage && <p className="success-message">{successMessage}</p>}
+            {error && <p className="error-message">{error}</p>}
         </>
     );
 
     const renderMyDoctorsSection = () => (
-        <div style={{width : '100%' , }}>
-            <MyDoctorsPage/>
+        <div style={{ width: '100%' }}>
+            <MyDoctorsPage />
         </div>
     );
 
@@ -184,18 +240,18 @@ const ProfilePage = () => {
                     <div className="user-info">
                         <img src={defaultProfilePicture} alt="User" className="user-avatar" />
                         <div>
-                        <h2>Hello,</h2>
-                        <h3>{userData.name}</h3>
+                            <h2>Hello,</h2>
+                            <h3>{userData.name}</h3>
                         </div>
                     </div>
                     <ul className="sidebar-menu">
-                        <li 
+                        <li
                             className={activeSection === 'profile' ? 'active' : ''}
                             onClick={() => setActiveSection('profile')}
                         >
                             Profile Information
                         </li>
-                        <li 
+                        <li
                             className={activeSection === 'myDoctors' ? 'active' : ''}
                             onClick={() => setActiveSection('myDoctors')}
                         >

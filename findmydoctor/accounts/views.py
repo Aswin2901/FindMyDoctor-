@@ -307,3 +307,16 @@ def mark_notification_as_read(request, notification_id):
     except Exception as e:
         print(e)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['PATCH'])
+def update_user_profile(request, user_id):
+    print(user_id)
+    try:
+        user = User.objects.get(id=user_id)
+        user.full_name = request.data.get('full_name', user.full_name)
+        user.phone = request.data.get('phone', user.phone)
+        user.gender = request.data.get('gender', user.gender)
+        user.save()
+        return Response({'message': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
