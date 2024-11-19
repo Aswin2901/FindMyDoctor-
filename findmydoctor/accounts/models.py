@@ -76,8 +76,10 @@ class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     type = models.CharField(max_length=50 , null=True) 
-    message = models.TextField()
+    message = models.TextField(max_length=255 , null=True)
+    doctor_message = models.TextField(max_length=255)
     is_read = models.BooleanField(default=False)
+    doctor_is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

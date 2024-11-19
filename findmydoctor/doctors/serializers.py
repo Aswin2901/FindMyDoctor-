@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Doctor , Verification , AppointmentAvailability , Leave , BreakTime
 from django.contrib.auth.hashers import make_password , check_password
 from rest_framework import serializers
+from accounts.models import Notification
 
 
 class DoctorSignupSerializer(serializers.ModelSerializer):
@@ -112,3 +113,8 @@ class BreakTimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = BreakTime
         fields = '__all__'
+        
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'user', 'doctor', 'type', 'message', 'doctor_message', 'doctor_is_read', 'is_read', 'created_at']

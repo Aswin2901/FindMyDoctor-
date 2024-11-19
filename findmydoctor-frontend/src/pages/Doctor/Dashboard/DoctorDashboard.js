@@ -5,6 +5,7 @@ import './DoctorDashboard.css';
 import doctorImage from '../../../Images/doctor-1.jpg';
 import Footer from '../../../components/Footer/Footer';
 import DoctorNav from '../DoctorNav/DoctorNav';
+import DoctorNotificationPage from '../DoctorNotification/DoctorNotificationPage'
 import { useAuth } from '../../../contexts/AuthContext';
 import AppointmentManagement from '../AppointmentManagement/AppointmentManagement'; 
 
@@ -75,8 +76,13 @@ function DoctorDashboard() {
                         >
                             Appointment Management
                         </li>
+                        <li 
+                            className={`menu-item ${activeMenu === 'notifications' ? 'active' : ''}`} 
+                            onClick={() => setActiveMenu('notifications')}
+                        >
+                            Notifications
+                        </li>
                         <li className="menu-item">Appointment History</li>
-                        <li className="menu-item">Notifications</li>
                         <li className="menu-item">Time-Slot Management</li>
                         <li className="menu-item">Profile</li>
                         <li className="menu-item">Verification</li>
@@ -121,6 +127,7 @@ function DoctorDashboard() {
                         </div>
                     )}
                     {activeMenu === 'appointmentManagement' && <AppointmentManagement />}
+                    {activeMenu === 'notifications' && <DoctorNotificationPage/> }
                 </main>
             </div>
             <Footer />

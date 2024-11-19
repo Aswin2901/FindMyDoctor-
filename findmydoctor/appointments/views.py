@@ -18,6 +18,7 @@ def create_appointment(request):
             user=appointment.patient,
             doctor=appointment.doctor,
             type="new appointment",
+            doctor_message = f'{appointment.patient.full_name} Taken a appointment on {appointment.date} at {appointment.time}.',
             message=f"Appointment created successfully on {appointment.date} at {appointment.time}. Please be ready for it."
         )
         

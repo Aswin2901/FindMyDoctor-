@@ -42,13 +42,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshAccessToken = async () => {
+    console.log('called')
     try {
       const response = await axios.post('http://localhost:8000/token/refresh/', {
         refresh: auth.refreshToken,
       });
+      console.log(response.data)
       setAuth((prev) => ({ ...prev, accessToken: response.data.access }));
       localStorage.setItem('access_token', response.data.access);
     } catch (error) {
+      console.log(error)
       logout();
     }
   };

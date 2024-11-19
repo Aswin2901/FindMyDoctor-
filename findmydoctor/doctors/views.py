@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from datetime import datetime
+from accounts.models import Notification
 from appointments.models import Appointment
 from .serializers import (
                           DoctorSignupSerializer ,
@@ -13,7 +14,8 @@ from .serializers import (
                           GetDoctorSerializer,
                           AppointmentAvailabilitySerializer,
                           BreakTimeSerializer,
-                          LeaveSerializer)
+                          LeaveSerializer ,
+                          NotificationSerializer)
 from .models import Doctor , Verification , AppointmentAvailability , BreakTime , Leave
 from django.http import JsonResponse
 from rest_framework.views import APIView
@@ -307,3 +309,23 @@ def get_available_slots(request):
     except Exception as e:
         print(e)
         return JsonResponse({'error': str(e)}, status=500)
+    
+@api_view(['GET'])
+def get_notifications(request, doctor_id):
+    notifications = Notification.objects.filter(doctor_id=doctor_id).order_by('-created_at')
+    serializer = NotificationSerializer(notifications, many=True)
+    return Response(serializer.data)
+
+@api_view(['PATCH'])
+def mark_notification_as_read(request, notification_id):
+    try:
+        notification = Notification.objects.get(id=notification_id)
+        notification.doctor_is_read = True
+        notification.save()
+        return Response({"message": "Notification marked as read."}, status=status.HTTP_200_OK)
+    except Notification.DoesNotExist:
+        print('does not exist')
+        return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(e)
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

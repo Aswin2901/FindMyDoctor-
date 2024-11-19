@@ -16,6 +16,7 @@ import ProfilePage from './pages/User/Profile/ProfilePage';
 import Navbar from './components/Navbar/Navbar';
 import MyDoctorsPage from './pages/User/MyDoctor.js/MyDoctorsPage';
 import NotificationPage from './pages/User/Notification/NotificationPage';
+import DoctorNotificationPage from './pages/Doctor/DoctorNotification/DoctorNotificationPage';
 import Intro from './pages/Intro';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path='/profile' element = {<PrivateRoute><ProfilePage/></PrivateRoute>}/>
           <Route path='/mydoctor' element = {<PrivateRoute><MyDoctorsPage/></PrivateRoute>}/>
           <Route path='/notification' element= {<PrivateRoute><NotificationPage/></PrivateRoute>}/>
+          <Route path='/doctor/notification' element= {<PrivateRoute> <DoctorNotificationPage/> </PrivateRoute>}/>
         </Routes>
       </Router>
     </div>
