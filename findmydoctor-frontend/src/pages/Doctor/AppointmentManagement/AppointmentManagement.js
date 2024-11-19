@@ -26,6 +26,7 @@ function AppointmentManagement() {
     const API_BASE_URL = 'http://127.0.0.1:8000/doctors';
 
     const handleDateClick = (date) => {
+        console.log(date)
         setSelectedDate(date);
     };
 
@@ -61,10 +62,12 @@ function AppointmentManagement() {
             alert('Please select both start and end times.');
             return;
         }
+        const adjustedDate = new Date(selectedDate);
+        adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
 
         const availabilityData = {
             userId,
-            date: selectedDate.toISOString().split('T')[0],
+            date: adjustedDate.toISOString().split('T')[0],
             start_time: `${startTime.format('hh:mm')} ${startAMPM}`,
             end_time: `${endTime.format('hh:mm')} ${endAMPM}`,
             breaks: breakTimes.map((breakTime) => ({
@@ -73,7 +76,7 @@ function AppointmentManagement() {
             })),
             duration: consultationDuration,
         };
-
+        console.log('data....' , availabilityData)
         try {
             await axios.post(`${API_BASE_URL}/availability/`, availabilityData);
             alert('Availability marked successfully!');
