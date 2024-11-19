@@ -1,25 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AppointmentModal.css';
-import { useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../../contexts/AuthContext';
 
 const AppointmentModal = ({ doctorId, closeModal }) => {
-  const auth = useAuth()
-  const userId = auth.auth.user.id
+  const auth = useAuth();
+  const userId = auth.auth.user.id;
+  console.log(userId)
+
   const [loading, setLoading] = useState(false);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [serverError, setServerError] = useState(null);
 
   // Validation schema using Yup
   const validationSchema = Yup.object({
     date: Yup.date().required('Date is required'),
-    time: Yup.string().required('Time is required'),
+    time: Yup.string().required('Please select a time slot'),
     reason: Yup.string()
       .min(10, 'Reason must be at least 10 characters')
       .required('Reason for visit is required'),
   });
+
+  // Fetch available slots when the date is selected
+  const fetchAvailableSlots = async (date) => {
+    setSlotsLoading(true);
+    setServerError(null);
+    try {
+      const response = await axios.get(
+        'http://localhost:8000/doctors/availability/slots/', {
+        params: {
+          doctorId: doctorId,
+          date: date
+        }
+      }
+          );
+      setAvailableSlots(response.data.available_slots || []);
+    } catch (err) {
+      console.error('Error fetching slots:', err);
+      setServerError(
+        err.response?.data?.message || 'Failed to load available slots. Please try again.'
+      );
+    } finally {
+      setSlotsLoading(false);
+    }
+  };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
@@ -63,14 +90,34 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, values }) => (
             <Form>
               <label htmlFor="date">Date:</label>
-              <Field type="date" name="date" id="date" />
+              <Field
+                type="date"
+                name="date"
+                id="date"
+                onChange={(e) => {
+                  const date = e.target.value;
+                  values.date = date;
+                  fetchAvailableSlots(date);
+                }}
+              />
               <ErrorMessage name="date" component="div" className="error" />
 
-              <label htmlFor="time">Time:</label>
-              <Field type="time" name="time" id="time" />
+              <label htmlFor="time">Available Time Slots:</label>
+              {slotsLoading ? (
+                <p>Loading slots...</p>
+              ) : (
+                <Field as="select" name="time" id="time">
+                  <option value="">Select a time slot</option>
+                  {availableSlots.map((slot, index) => (
+                    <option key={index} value={slot}>
+                      {slot}
+                    </option>
+                  ))}
+                </Field>
+              )}
               <ErrorMessage name="time" component="div" className="error" />
 
               <label htmlFor="reason">Reason for Visit:</label>

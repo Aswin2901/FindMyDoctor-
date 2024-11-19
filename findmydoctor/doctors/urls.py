@@ -9,7 +9,8 @@ from .views import ( doctor_signup ,
                     VerifyDoctor , get_verified_doctors,
                     mark_availability,
                     LeaveView,
-                    BreakTimeView
+                    BreakTimeView, 
+                    get_available_slots
 )
 urlpatterns = [
     path('register/', doctor_signup, name='doctor-signup'),
@@ -24,5 +25,6 @@ urlpatterns = [
     path('availability/', mark_availability, name='appointment-availability'),
     path('leave/', LeaveView.as_view(), name='leave'),
     path('break-time/', BreakTimeView.as_view(), name='break-time'),
+    path('availability/slots/', get_available_slots, name='get_available_slots'),
     
 ]

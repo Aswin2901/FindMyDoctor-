@@ -11,6 +11,7 @@ def create_appointment(request):
     serializer = AppointmentSerializer(data=request.data)
     if serializer.is_valid():
         appointment = serializer.save()
+        print('appointment ' , appointment)
         
         # Create a notification for the user after the appointment is created
         Notification.objects.create(

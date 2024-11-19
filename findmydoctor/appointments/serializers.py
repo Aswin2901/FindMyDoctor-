@@ -4,7 +4,7 @@ from django.utils import timezone
 
 class AppointmentSerializer(serializers.ModelSerializer):
     # Define default values for fields
-    status = serializers.CharField(default='Pending', read_only=True)
+    status = serializers.CharField(default='confirmed', read_only=True)
     created_at = serializers.DateTimeField(default=timezone.now, read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 

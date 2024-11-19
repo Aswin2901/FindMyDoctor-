@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from datetime import datetime
+from appointments.models import Appointment
 from .serializers import (
                           DoctorSignupSerializer ,
                           DoctorLoginSerializer ,
@@ -17,6 +18,7 @@ from .models import Doctor , Verification , AppointmentAvailability , BreakTime 
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from .utils import generate_time_slots, is_time_in_range
 
 
 
@@ -193,7 +195,7 @@ def mark_availability(request):
         availability = AppointmentAvailability.objects.create(
             doctor=doctor,
             date=parsed_date,
-            duration=str(duration),
+            duration=duration,
             start_time=parsed_start_time,
             end_time=parsed_end_time,
         )
@@ -243,3 +245,65 @@ class BreakTimeView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+def get_available_slots(request):
+    # Get query parameters
+    doctor_id = request.query_params.get('doctorId')
+    date = request.query_params.get('date')
+    
+    # Check if doctorId and date are provided
+    if not doctor_id or not date:
+        return JsonResponse({'error': 'doctorId and date are required.'}, status=400)
+
+    try:
+        # Parse the date
+        date = datetime.strptime(date, "%Y-%m-%d").date()
+
+        print('date:', date)
+        
+        print(AppointmentAvailability.objects.filter(doctor=1, date='2024-11-20'))  
+        # Fetch the doctor's availability for the date
+        availability = AppointmentAvailability.objects.filter(doctor=doctor_id, date=date).first()
+        print('availability:', availability)
+
+        if not availability:
+            print('availability is not available')
+            return JsonResponse({'available_slots': [], 'message': 'No availability for the selected date.'}, status=200)
+
+        # Generate all potential slots
+        all_slots = generate_time_slots(
+            availability.start_time,
+            availability.end_time,
+            availability.duration
+        )
+        
+        print('all slots:', all_slots)
+
+        # Fetch break times for the availability
+        break_times = BreakTime.objects.filter(availability=availability)
+        booked_appointments = Appointment.objects.filter(doctor_id=doctor_id, date=date)
+        
+        print('break_times:', break_times)
+        print('booked_appointments:', booked_appointments)
+        
+        # Filter out breaks and booked slots
+        available_slots = []
+        for slot in all_slots:
+            slot_time = datetime.strptime(slot, "%H:%M").time()
+            print('slot_time:', slot_time)
+            in_break = any(is_time_in_range(break_time.start_time, break_time.end_time, slot_time)
+                           for break_time in break_times)
+            is_booked = booked_appointments.filter(time=slot_time).exists()
+
+            if not in_break and not is_booked:
+                available_slots.append(slot)
+        print('available_slots:', available_slots)
+
+        return JsonResponse({'available_slots': available_slots}, status=200)
+
+    except ValueError as e:
+        return JsonResponse({'error': 'Invalid date format. Expected format: YYYY-MM-DD'}, status=400)
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error': str(e)}, status=500)
