@@ -4,10 +4,12 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import defaultProfilePic from '../../../Images/profile-icon.png'
+import { useAuth } from '../../../contexts/AuthContext';
 
 const MyDoctorsPage = () => {
     const navigate = useNavigate();
-    const userId = useSelector((state) => state.auth.user?.id);
+    const auth = useAuth()
+    const userId = auth.auth.user.id
     const [favoriteDoctors, setFavoriteDoctors] = useState([]);
     const [error, setError] = useState(null);
 

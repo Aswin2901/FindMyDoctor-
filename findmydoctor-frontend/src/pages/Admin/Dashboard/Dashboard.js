@@ -11,7 +11,7 @@ const Dashboard = () => {
     const [doctorsList, setDoctorsList] = useState([]);
     const [usersList, setUsersList] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10);
+    const [itemsPerPage] = useState(5);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     let currentDoctors = doctorsList.slice(indexOfFirstItem, indexOfLastItem);

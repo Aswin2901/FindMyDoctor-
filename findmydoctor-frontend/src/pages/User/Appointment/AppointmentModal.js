@@ -93,7 +93,7 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, values }) => (
+          {({ isSubmitting, values, setFieldValue }) => (
             <Form>
               <label htmlFor="date">Date:</label>
               <Field
@@ -102,24 +102,30 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
                 id="date"
                 onChange={(e) => {
                   const date = e.target.value;
-                  values.date = date;
+                  setFieldValue('date', date); 
                   fetchAvailableSlots(date);
                 }}
               />
               <ErrorMessage name="date" component="div" className="error" />
 
               <label htmlFor="time">Available Time Slots:</label>
-              {slotsLoading ? (
-                <p>Loading slots...</p>
+              {values.date ? ( // Check if a date is selected
+                slotsLoading ? (
+                  <p>Loading slots...</p>
+                ) : availableSlots.length === 0 ? (
+                  <p style={{color:'red'}} >We are sorry, on this date the doctor is not taking any appointments.</p>
+                ) : (
+                  <Field as="select" name="time" id="time">
+                    <option value="">Select a time slot</option>
+                    {availableSlots.map((slot, index) => (
+                      <option key={index} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                  </Field>
+                )
               ) : (
-                <Field as="select" name="time" id="time">
-                  <option value="">Select a time slot</option>
-                  {availableSlots.map((slot, index) => (
-                    <option key={index} value={slot}>
-                      {slot}
-                    </option>
-                  ))}
-                </Field>
+                <p style={{color:'green'}} >Please select a date to view available slots.</p>
               )}
               <ErrorMessage name="time" component="div" className="error" />
 
@@ -153,6 +159,7 @@ const AppointmentModal = ({ doctorId, closeModal }) => {
           )}
         </Formik>
       </div>
+
     </div>
   );
 };

@@ -14,7 +14,7 @@ const GoogleCallback = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
 
-      console.log('Authorization code:', code); // Log the code for debugging
+      console.log('Authorization code:', code); 
 
       if (code) {
         try {

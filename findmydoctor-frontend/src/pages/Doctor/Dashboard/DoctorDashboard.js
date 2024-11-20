@@ -33,6 +33,14 @@ function DoctorDashboard() {
         checkVerification();
     }, [doctorId]);
 
+    const handleLogout = () => {
+        const confirmLogout = window.confirm('Are you sure you want to log out?');
+        if (confirmLogout) {
+            localStorage.clear(); 
+            navigate('/'); 
+        }
+    };
+
     if (isVerified === null) {
         return <p>Loading...</p>;
     }
@@ -86,7 +94,7 @@ function DoctorDashboard() {
                         <li className="menu-item">Time-Slot Management</li>
                         <li className="menu-item">Profile</li>
                         <li className="menu-item">Verification</li>
-                        <li className="menu-item logout">Logout</li>
+                        <li className="menu-item logout"  onClick={handleLogout}>Logout</li>
                     </ul>
                 </aside>
 

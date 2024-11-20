@@ -6,9 +6,11 @@ import Footer from '../../../components/Footer/Footer';
 import defaultProfileIcon from '../../../Images/profile-icon.png';
 import './DoctorList.css';
 import { useSelector } from 'react-redux';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const DoctorList = () => {
-  const userId = useSelector((state) => state.auth.user?.id)
+  const  auth = useAuth()
+  const userId = auth.auth.user.id
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +20,7 @@ const DoctorList = () => {
   const [qualificationFilter, setQualificationFilter] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState('');
   const [appointmentDoctorId, setAppointmentDoctorId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -60,7 +63,7 @@ const DoctorList = () => {
         }
         
       );
-      alert(response.data.message);
+      setSuccessMessage(response.data.message)
     } catch (error) {
       console.error('Error adding doctor to My Doctors:', error);
       alert('Failed to add doctor.');
@@ -118,6 +121,9 @@ const DoctorList = () => {
           </div>
 
           <div className="doctor-cards">
+          {successMessage && (
+                <p className="success-message">{successMessage}</p> // Display success message
+              )}
             {filteredDoctors.map((doctor, index) => (
               <div key={index} className="doctor-card">
                 <div className="doctor-header" onClick={() => toggleExpandCard(index)}>
