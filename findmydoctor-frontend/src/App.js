@@ -18,6 +18,7 @@ import MyDoctorsPage from './pages/User/MyDoctor.js/MyDoctorsPage';
 import NotificationPage from './pages/User/Notification/NotificationPage';
 import DoctorNotificationPage from './pages/Doctor/DoctorNotification/DoctorNotificationPage';
 import Intro from './pages/Intro';
+import ServicePage from './pages/User/ServicePage/ServicePage';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path='/mydoctor' element = {<PrivateRoute><MyDoctorsPage/></PrivateRoute>}/>
           <Route path='/notification' element= {<PrivateRoute><NotificationPage/></PrivateRoute>}/>
           <Route path='/doctor/notification' element= {<PrivateRoute> <DoctorNotificationPage/> </PrivateRoute>}/>
+          <Route path='/service' element= {<ServicePage/>}/>
         </Routes>
       </Router>
     </div>
