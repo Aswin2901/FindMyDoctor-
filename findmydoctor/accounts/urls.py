@@ -16,4 +16,5 @@ urlpatterns = [
     path('get-notification/<int:user_id>/', views.get_notifications, name='get_notifications'),
     path('mark-as-read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
     path('update_user_profile/<int:user_id>/', views.update_user_profile, name='update_user_profile'),
+    path('<int:user_id>/block/', views.BlockUserView.as_view(), name='block-user'),
 ]

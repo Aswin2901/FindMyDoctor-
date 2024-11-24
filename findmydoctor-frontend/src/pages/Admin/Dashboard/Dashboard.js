@@ -1,34 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './Dashboard.css'; 
+import './Dashboard.css';
 import Footer from '../../../components/Footer/Footer';
 import ProfileIcon from '../../../Images/profile-icon.png';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirect
+import { useNavigate } from 'react-router-dom';
 import AdminNav from '../AdminNav/AdminNav';
 
 const Dashboard = () => {
+    // State variables
     const [recentDoctors, setRecentDoctors] = useState([]);
     const [doctorsList, setDoctorsList] = useState([]);
     const [usersList, setUsersList] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    let currentDoctors = doctorsList.slice(indexOfFirstItem, indexOfLastItem);
-    let currentUsers = usersList.slice(indexOfFirstItem, indexOfLastItem);
     const [activeSection, setActiveSection] = useState('dashboard');
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
-    const navigate = useNavigate(); // Initialize navigate function
-
     const [statusFilter, setStatusFilter] = useState('');
+    const navigate = useNavigate();
 
+    // Pagination calculations
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+    // Filtered and paginated data
     const filteredDoctors = doctorsList.filter((doctor) => {
         return statusFilter === '' || doctor.is_verified.toString() === statusFilter;
     });
+    const currentDoctors = filteredDoctors.slice(indexOfFirstItem, indexOfLastItem);
+    const currentUsers = usersList.slice(indexOfFirstItem, indexOfLastItem);
 
-    currentDoctors = filteredDoctors.slice(indexOfFirstItem, indexOfLastItem);
-
+    // Fetch recent doctors
     useEffect(() => {
         const fetchRecentDoctors = async () => {
             try {
@@ -41,6 +43,7 @@ const Dashboard = () => {
         fetchRecentDoctors();
     }, []);
 
+    // Fetch doctors list
     const fetchDoctorsList = async () => {
         try {
             const response = await axios.get('http://localhost:8000/doctors/all/');
@@ -50,6 +53,7 @@ const Dashboard = () => {
         }
     };
 
+    // Fetch users list
     const fetchUsersList = async () => {
         try {
             const response = await axios.get('http://localhost:8000/accounts/all/');
@@ -59,30 +63,28 @@ const Dashboard = () => {
         }
     };
 
+    // Handle section menu clicks
     const handleMenuClick = (section) => {
         setActiveSection(section);
         setSelectedDoctor(null);
         setErrorMessage('');
-        if (section === 'doctors') {
-            fetchDoctorsList();
-        } else if (section === 'users') {
-            fetchUsersList();
-        }
+        if (section === 'doctors') fetchDoctorsList();
+        if (section === 'users') fetchUsersList();
     };
 
+    // Logout function
     const handleLogout = () => {
         const confirmLogout = window.confirm('Are you sure you want to log out?');
         if (confirmLogout) {
-            localStorage.clear(); 
-            navigate('/'); 
+            localStorage.clear();
+            navigate('/');
         }
     };
 
-    // Placeholder function for handling review of a doctor
+    // Review doctor details
     const handleReviewDoctor = async (doctorId) => {
         try {
             const response = await axios.get(`http://localhost:8000/doctors/review/${doctorId}/`);
-            console.log(response.data)
             setSelectedDoctor(response.data);
             setErrorMessage('');
         } catch (error) {
@@ -92,14 +94,14 @@ const Dashboard = () => {
                 console.error('Error fetching doctor verification details:', error);
                 setErrorMessage('An error occurred while fetching the verification details.');
             }
-            
         }
     };
 
+    // Verify doctor
     const handleVerifyDoctor = async () => {
         try {
             await axios.post(`http://localhost:8000/doctors/makeverify/${selectedDoctor.doc_id}/`);
-            alert("Doctor verified");
+            alert('Doctor verified successfully');
             setSelectedDoctor(null);
             fetchDoctorsList();
         } catch (error) {
@@ -107,47 +109,78 @@ const Dashboard = () => {
         }
     };
 
+    // Cancel doctor verification
     const handleCancelVerification = () => {
-        console.log("Canceled verification for doctor:", selectedDoctor);
-        setSelectedDoctor(null); // Clear selection
+        setSelectedDoctor(null);
     };
 
+    // Block/unblock user
+    const handleBlockUser = async (userId, currentStatus) => {
+        const confirmAction = window.confirm(
+            `Are you sure you want to ${currentStatus ? 'block' : 'unblock'} this user?`
+        );
+
+        if (confirmAction) {
+            try {
+                const response = await axios.patch(`http://localhost:8000/accounts/${userId}/block/`, {
+                    is_active: !currentStatus,
+                });
+                setUsersList(usersList.map(user =>
+                    user.id === userId ? { ...user, is_active: response.data.is_active } : user
+                ));
+            } catch (error) {
+                console.error('Error blocking/unblocking user:', error);
+                alert('An error occurred while updating the user status.');
+            }
+        }
+    };
+
+    // Render the dashboard UI
     return (
         <div className="dashboard-container">
-            <AdminNav/>
+            <AdminNav />
 
             <div className="dashboard-main">
                 <aside className="sidebar">
                     <div className="menu-title">Primary Menu</div>
                     <ul className="menu-list">
-                        <li className={`menu-item ${activeSection === 'dashboard' ? 'active' : ''}`} 
-                            onClick={() => handleMenuClick('dashboard')}>
+                        <li
+                            className={`menu-item ${activeSection === 'dashboard' ? 'active' : ''}`}
+                            onClick={() => handleMenuClick('dashboard')}
+                        >
                             Dashboard
                         </li>
                         <li className="menu-item">Appointment Management</li>
-                        <li className={`menu-item ${activeSection === 'doctors' ? 'active' : ''}`} 
-                            onClick={() => handleMenuClick('doctors')}>
+                        <li
+                            className={`menu-item ${activeSection === 'doctors' ? 'active' : ''}`}
+                            onClick={() => handleMenuClick('doctors')}
+                        >
                             Doctors
                         </li>
-                        <li className={`menu-item ${activeSection === 'users' ? 'active' : ''}`} 
-                            onClick={() => handleMenuClick('users')}>
+                        <li
+                            className={`menu-item ${activeSection === 'users' ? 'active' : ''}`}
+                            onClick={() => handleMenuClick('users')}
+                        >
                             Users
                         </li>
-                        <li className="menu-item logout" onClick={handleLogout}>Logout</li>
+                        <li className="menu-item logout" onClick={handleLogout}>
+                            Logout
+                        </li>
                     </ul>
                 </aside>
 
                 <section className="dashboard-content">
+                    {/* Dashboard Overview Section */}
                     {activeSection === 'dashboard' && (
                         <>
                             <div className="categories">
                                 <div className="category-card">
                                     <h3>17</h3>
-                                    <p>New Appointment</p>
+                                    <p>New Appointments</p>
                                 </div>
                                 <div className="category-card">
                                     <h3>176</h3>
-                                    <p>Total Appointment</p>
+                                    <p>Total Appointments</p>
                                 </div>
                                 <div className="category-card">
                                     <h3>300</h3>
@@ -164,9 +197,11 @@ const Dashboard = () => {
                                 {recentDoctors.map((doctor, index) => (
                                     <div className="doctor-card" key={index}>
                                         <div className="doctor-info">
-                                            <img src={doctor.profile_picture || ProfileIcon } 
-                                                 alt={`${doctor.full_name}'s Profile`} 
-                                                 className="doctor-profile-picture" />
+                                            <img
+                                                src={doctor.profile_picture || ProfileIcon}
+                                                alt={`${doctor.full_name}'s Profile`}
+                                                className="doctor-profile-picture"
+                                            />
                                             <h5>{doctor.full_name}</h5>
                                             <p>{doctor.email}</p>
                                             <p>{doctor.phone}</p>
@@ -177,18 +212,16 @@ const Dashboard = () => {
                         </>
                     )}
 
+                    {/* Doctors Section */}
                     {activeSection === 'doctors' && !selectedDoctor && (
-                        <div className="doctors-list">
-                            <h4>Doctors List</h4><br/>
-                            {errorMessage && (
-                                <div className="error-message">
-                                    <p>{errorMessage}</p>
-                                </div>
-                            )}
-
+                        <>
                             <div className="filter-section">
                                 <label htmlFor="statusFilter">Filter by Status:</label>
-                                <select id="statusFilter" onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>
+                                <select
+                                    id="statusFilter"
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                >
                                     <option value="">All</option>
                                     <option value="true">Verified</option>
                                     <option value="false">Not Verified</option>
@@ -202,7 +235,6 @@ const Dashboard = () => {
                                         <th>Full Name</th>
                                         <th>Email</th>
                                         <th>Phone</th>
-                                        <th>State</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -210,113 +242,100 @@ const Dashboard = () => {
                                 <tbody>
                                     {currentDoctors.map((doctor) => (
                                         <tr key={doctor.id}>
-                                            <td><img src={doctor.profile_picture || ProfileIcon} alt={`${doctor.full_name}'s Profile`} className="table-profile-picture" /></td>
+                                            <td>
+                                                <img
+                                                    src={doctor.profile_picture || ProfileIcon}
+                                                    alt={`${doctor.full_name}'s Profile`}
+                                                    className="table-profile-picture"
+                                                />
+                                            </td>
                                             <td>{doctor.full_name}</td>
                                             <td>{doctor.email}</td>
                                             <td>{doctor.phone}</td>
-                                            <td>{doctor.state}</td>
-                                            <td style={{ color: doctor.is_verified ? 'green' : 'red' }}>{doctor.is_verified ? 'Verified' : 'Not Verified'}</td>
-                                            <td className='actions'><button className="btn-review" onClick={() => handleReviewDoctor(doctor.id)}>Review & Verify</button></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            <div className="pagination-controls">
-                                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
-                                    Previous
-                                </button>
-                                <span>Page {currentPage} of {Math.ceil(doctorsList.length / itemsPerPage)}</span>
-                                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(doctorsList.length / itemsPerPage)))} 
-                                        disabled={currentPage === Math.ceil(doctorsList.length / itemsPerPage)}>
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    
-
-                    {selectedDoctor && (
-                        <div className="verification-details">
-                            <h4>Verification Details for {selectedDoctor.full_name}</h4>
-                            <p>Email: {selectedDoctor.email}</p>
-                            <p>Phone: {selectedDoctor.phone}</p>
-                            <p>Qualification: {selectedDoctor.qualification}</p>
-                            <p>Specialty: {selectedDoctor.specialty}</p>
-                            <p>Experience: {selectedDoctor.experience} years</p>
-                            <p>Hospital: {selectedDoctor.hospital}</p>
-                            <p>Clinic: {selectedDoctor.clinic}</p>
-                            <p>License: {selectedDoctor.license}</p>
-                            <p>Issuing Authority: {selectedDoctor.issuing_authority}</p>
-                            <p>License Expiry Date: {selectedDoctor.expiry_date}</p>
-                            <p>Medical Registration: {selectedDoctor.medical_registration}</p>
-
-                            <div className="document-thumbnails">
-                                <div className="document-thumbnail">
-                                    <a href={`http://localhost:8000${selectedDoctor.id_proof}`} target="_blank" rel="noopener noreferrer">
-                                        <img src={`http://localhost:8000${selectedDoctor.id_proof}`} alt="ID Proof" />
-                                    </a>
-                                </div>
-                                <div className="document-thumbnail">
-                                    <a href={`http://localhost:8000${selectedDoctor.medical_license}`} target="_blank" rel="noopener noreferrer">
-                                        <img src={`http://localhost:8000${selectedDoctor.medical_license}`} alt="Medical License" />
-                                    </a>
-                                </div>
-                                <div className="document-thumbnail">
-                                    <a href={`http://localhost:8000${selectedDoctor.degree_certificate}`} target="_blank" rel="noopener noreferrer">
-                                        <img src={`http://localhost:8000${selectedDoctor.degree_certificate}`} alt="Degree Certificate" />
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div className="verification-actions">
-                                <button className="btn-verify" onClick={handleVerifyDoctor}>Verify</button>
-                                <button className="btn-cancel" onClick={handleCancelVerification}>Cancel</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeSection === 'users' && (
-                        <div className="users-list">
-                            <h4>Users List</h4>
-
-                            <table className="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Full Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>State</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {currentUsers.map((user) => (
-                                        <tr key={user.id}>
-                                            <td>{user.full_name}</td>
-                                            <td>{user.email}</td>
-                                            <td>{user.phone}</td>
-                                            <td>{user.state}</td>
-                                            <td className='actions'>
-                                                <button className={user.is_active ? "btn-block" : "btn-unblock"}>
-                                                    {user.is_active ? 'Block' : 'Unblock'}
+                                            <td style={{ color: doctor.is_verified ? 'green' : 'red' }}>
+                                                {doctor.is_verified ? 'Verified' : 'Not Verified'}
+                                            </td>
+                                            <td>
+                                                <button
+                                                    className="btn-review"
+                                                    onClick={() => handleReviewDoctor(doctor.id)}
+                                                >
+                                                    Review & Verify
                                                 </button>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                            <div className="pagination-controls">
-                                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
-                                    Previous
-                                </button>
-                                <span>Page {currentPage} of {Math.ceil(doctorsList.length / itemsPerPage)}</span>
-                                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(doctorsList.length / itemsPerPage)))} 
-                                        disabled={currentPage === Math.ceil(doctorsList.length / itemsPerPage)}>
-                                    Next
-                                </button>
-                            </div>
+                        </>
+                    )}
+
+                    {/* Verification Details Section */}
+                    {activeSection === 'doctors' && selectedDoctor && (
+                        <div className="verification-details">
+                            <h4>Verification Details</h4>
+                            {errorMessage && <p className="error-message">{errorMessage}</p>}
+                            {selectedDoctor && (
+                                <>
+                                    <p>Full Name: {selectedDoctor.full_name}</p>
+                                    <p>Email: {selectedDoctor.email}</p>
+                                    <p>Phone: {selectedDoctor.phone}</p>
+                                    <p>State: {selectedDoctor.state}</p>
+                                    <p>Address: {selectedDoctor.address}</p>
+                                    <p>Date of Birth: {selectedDoctor.date_of_birth}</p>
+                                    <p>Gender: {selectedDoctor.gender}</p>
+                                    <div className="verification-buttons">
+                                        <button
+                                            className="btn-verify"
+                                            onClick={handleVerifyDoctor}
+                                        >
+                                            Verify
+                                        </button>
+                                        <button
+                                            className="btn-cancel"
+                                            onClick={handleCancelVerification}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
+                    )}
+
+                    {/* Users Section */}
+                    {activeSection === 'users' && (
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentUsers.map((user) => (
+                                    <tr key={user.id}>
+                                        <td>{user.full_name}</td>
+                                        <td>{user.email}</td>
+                                        <td>{user.phone}</td>
+                                        <td style={{ color: user.is_active ? 'green' : 'red' }}>
+                                            {user.is_active ? 'Active' : 'Blocked'}
+                                        </td>
+                                        <td>
+                                            <button
+                                                className={`btn-block ${user.is_active ? 'block' : 'unblock'}`}
+                                                onClick={() => handleBlockUser(user.id, user.is_active)}
+                                            >
+                                                {user.is_active ? 'Block' : 'Unblock'}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     )}
                 </section>
             </div>

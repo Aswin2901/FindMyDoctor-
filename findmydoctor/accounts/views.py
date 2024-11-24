@@ -320,3 +320,14 @@ def update_user_profile(request, user_id):
         return Response({'message': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+class BlockUserView(APIView):
+    def patch(self, request, user_id):
+        user = User.objects.get(id = user_id)
+        is_active = request.data.get('is_active', None)
+        if is_active is None:
+            return Response({"error": "is_active field is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.is_active = is_active
+        user.save()
+        return Response({"message": "User status updated.", "is_active": user.is_active}, status=status.HTTP_200_OK)
