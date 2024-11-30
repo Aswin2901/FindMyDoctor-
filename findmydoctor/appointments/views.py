@@ -24,3 +24,40 @@ def create_appointment(request):
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def appointment_history(request, doctor_id):
+    try:
+        appointments = Appointment.objects.filter(doctor_id=doctor_id).order_by('-date', '-time')
+        serializer = AppointmentSerializer(appointments, many=True)
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['POST'])
+def cancel_appointment(request, appointment_id):
+    try:
+        appointment = Appointment.objects.get(id=appointment_id)
+        if appointment.status == 'canceled':
+            return Response({'message': 'Appointment is already canceled.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        appointment.status = 'canceled'
+        appointment.save()
+
+        # Create a notification for the patient about the cancellation
+        Notification.objects.create(
+            user=appointment.patient,
+            doctor=appointment.doctor,
+            type="appointment cancellation",
+            doctor_message=f"Appointment with {appointment.patient.full_name} on {appointment.date} at {appointment.time} was canceled.",
+            message=f"Your appointment with Dr. {appointment.doctor.full_name} on {appointment.date} at {appointment.time} has been canceled."
+        )
+
+        return Response({'message': 'Appointment canceled successfully.'}, status=status.HTTP_200_OK)
+    except Appointment.DoesNotExist:
+        return Response({'error': 'Appointment not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -8,6 +8,7 @@ import DoctorNav from '../DoctorNav/DoctorNav';
 import DoctorNotificationPage from '../DoctorNotification/DoctorNotificationPage'
 import { useAuth } from '../../../contexts/AuthContext';
 import AppointmentManagement from '../AppointmentManagement/AppointmentManagement'; 
+import AppointmentHistory from '../AppointmentHistory/AppointmentHistory';
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
@@ -82,7 +83,7 @@ function DoctorDashboard() {
                             className={`menu-item ${activeMenu === 'appointmentManagement' ? 'active' : ''}`} 
                             onClick={() => setActiveMenu('appointmentManagement')}
                         >
-                            Appointment Management
+                            Slot Management
                         </li>
                         <li 
                             className={`menu-item ${activeMenu === 'notifications' ? 'active' : ''}`} 
@@ -90,7 +91,12 @@ function DoctorDashboard() {
                         >
                             Notifications
                         </li>
-                        <li className="menu-item">Appointment History</li>
+                        <li 
+                            className={`menu-item ${activeMenu === 'appointmentHistory' ? 'active' : ''}`} 
+                            onClick={() => setActiveMenu('appointmentHistory')}
+                        >
+                            Appointment History
+                        </li>
                         <li className="menu-item">Time-Slot Management</li>
                         <li className="menu-item">Profile</li>
                         <li className="menu-item">Verification</li>
@@ -136,6 +142,7 @@ function DoctorDashboard() {
                     )}
                     {activeMenu === 'appointmentManagement' && <AppointmentManagement />}
                     {activeMenu === 'notifications' && <DoctorNotificationPage/> }
+                    {activeMenu === 'appointmentHistory' && <AppointmentHistory doctorId={doctorId} />}
                 </main>
             </div>
             <Footer />
