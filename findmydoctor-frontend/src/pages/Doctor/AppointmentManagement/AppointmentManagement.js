@@ -108,7 +108,7 @@ function AppointmentManagement() {
 
     return (
         <div className="appointment-management">
-            <h2>Appointment Management</h2>
+            <h2>Slot Management</h2>
 
             <div className="appointment-container">
                 <div className="calendar-section">

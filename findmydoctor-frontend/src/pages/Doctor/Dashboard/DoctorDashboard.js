@@ -9,11 +9,13 @@ import DoctorNotificationPage from '../DoctorNotification/DoctorNotificationPage
 import { useAuth } from '../../../contexts/AuthContext';
 import AppointmentManagement from '../AppointmentManagement/AppointmentManagement'; 
 import AppointmentHistory from '../AppointmentHistory/AppointmentHistory';
+import Calendar from 'react-calendar';
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
     const [formSubmitted, setFormSubmitted] = useState(false);
-    const [activeMenu, setActiveMenu] = useState('dashboard'); // Track active menu
+    const [activeMenu, setActiveMenu] = useState('dashboard'); 
+    const [appointments, setAppointments] = useState([]);
     const navigate = useNavigate();
     const auth = useAuth();
     const [ doctorId , setdoctorId ] = useState(null)
@@ -32,6 +34,18 @@ function DoctorDashboard() {
             }
         }
         checkVerification();
+
+        async function fetchAppointments() {
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/appointments/history/${doctorId}/`);
+                // Assuming the response contains an array of appointments
+                setAppointments(response.data.slice(0, 2)); // Get only the latest two appointments
+            } catch (error) {
+                console.error('Error fetching appointments:', error);
+            }
+        }
+
+        fetchAppointments();
     }, [doctorId]);
 
     const handleLogout = () => {
@@ -96,8 +110,7 @@ function DoctorDashboard() {
                             onClick={() => setActiveMenu('appointmentHistory')}
                         >
                             Appointment History
-                        </li>
-                        <li className="menu-item">Time-Slot Management</li>
+                        </li>   
                         <li className="menu-item">Profile</li>
                         <li className="menu-item">Verification</li>
                         <li className="menu-item logout"  onClick={handleLogout}>Logout</li>
@@ -118,23 +131,31 @@ function DoctorDashboard() {
 
                             <div className="dashboard-content">
                                 <div className="categories">
-                                    <div className="category-card">New Appointment</div>
+                                    <div className="category-card" onClick={() => setActiveMenu('appointmentHistory')}>New Appointment</div>
                                     <div className="category-card">Total Appointment</div>
                                 </div>
 
                                 <div className="appointments-section">
                                     <div className="calendar">
                                         <h4>Calendar</h4>
-                                        <p>[Calendar Component]</p>
+                                        <div>
+                                            <Calendar/>
+                                        </div>
                                     </div>
                                     <div className="my-appointments">
-                                        <h4>My Appointments</h4>
-                                        <div className="appointment-card">
-                                            <p>Patient: Aravind Gopal</p>
-                                            <p>Date: 29/01/2024</p>
-                                            <p>Time: 10:30</p>
-                                            <p>Status: Pending</p>
-                                        </div>
+                                        <h4>My Appointments</h4><br/>
+                                        {appointments.length > 0 ? (
+                                            appointments.map((appointment) => (
+                                                <div key={appointment.id} className="appointment-card">
+                                                    <p><strong>Patient:</strong> {appointment.patient_name}</p>
+                                                    <p><strong>Date:</strong> {appointment.date}</p>
+                                                    <p><strong>Time:</strong> {appointment.time}</p>
+                                                    <p><strong>Status:</strong> {appointment.status}</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p>No appointments found.</p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
