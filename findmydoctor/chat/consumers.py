@@ -49,7 +49,6 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         """
         if text_data:
             data = json.loads(text_data)
-            print('data :' ,data)
             message = data.get("message", "")
             sender = data.get('sender' , "")
 
@@ -73,7 +72,7 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
         sender_id = event["sender_id"]
         sender = event['sender']
-        print('sender :' , sender)
+       
         
 
         # Send the message back to the WebSocket client

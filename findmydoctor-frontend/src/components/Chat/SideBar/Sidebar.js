@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../contexts/AuthContext';
+import './Sidebar.css'
 
 function Sidebar({ userType, onSelectChat }) {
   const [items, setItems] = useState([]);
