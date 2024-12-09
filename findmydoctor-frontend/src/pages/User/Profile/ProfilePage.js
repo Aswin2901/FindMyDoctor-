@@ -5,9 +5,11 @@ import Footer from '../../../components/Footer/Footer';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import MyDoctorsPage from '../MyDoctor.js/MyDoctorsPage';
+import ChatPage from '../ChatPage/ChatPage';
 import defaultProfilePicture from '../../../Images/profile-icon.png';
 import { useAuth } from '../../../contexts/AuthContext';
 import * as yup from 'yup'; // Importing yup for validation
+import ChatArea from '../../../components/Chat/ChatArea/ChatArea';
 
 const ProfilePage = () => {
     const { logout, auth } = useAuth();
@@ -232,6 +234,12 @@ const ProfilePage = () => {
         </div>
     );
 
+    const renderChatSection = () => (
+        <div style={{ width: '100%' }}>
+            <ChatArea userType="patient" /> 
+        </div>
+    );
+
     return (
         <div>
             <Navbar /><br />
@@ -257,6 +265,13 @@ const ProfilePage = () => {
                         >
                             My Doctors
                         </li>
+                        <li
+                            className={activeSection === 'chat' ? 'active' : ''}
+                            onClick={() => setActiveSection('chat')}
+                        >
+                            Chat
+                        </li>
+
                         <li onClick={handleLogout}>Logout</li>
                     </ul>
                 </div>
@@ -266,7 +281,11 @@ const ProfilePage = () => {
                     ) : error ? (
                         <p className="error-message">{error}</p>
                     ) : (
-                        activeSection === 'profile' ? renderProfileSection() : renderMyDoctorsSection()
+                        activeSection === 'profile'
+                            ? renderProfileSection()
+                            : activeSection === 'myDoctors'
+                            ? renderMyDoctorsSection()
+                            : renderChatSection() // Render the Chat section when active
                     )}
                 </div>
             </div><br />

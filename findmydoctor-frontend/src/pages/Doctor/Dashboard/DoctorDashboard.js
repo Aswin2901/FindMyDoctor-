@@ -10,6 +10,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import AppointmentManagement from '../AppointmentManagement/AppointmentManagement'; 
 import AppointmentHistory from '../AppointmentHistory/AppointmentHistory';
 import Calendar from 'react-calendar';
+import ChatArea from '../../../components/Chat/ChatArea/ChatArea';
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
@@ -18,13 +19,15 @@ function DoctorDashboard() {
     const [appointments, setAppointments] = useState([]);
     const navigate = useNavigate();
     const auth = useAuth();
-    const [ doctorId , setdoctorId ] = useState(null)
+    const [ doctorId , setdoctorId ] = useState(auth.auth.user.id)
 
 
 
     useEffect(() => {
+        console.log('DOCTOR ID : ' , auth.auth.user.id)
         setdoctorId(auth.auth.user.id);
         async function checkVerification() {
+            console.log('state docotor id :' , doctorId)
             try {
                 const response = await axios.get(`http://127.0.0.1:8000/doctors/verification/${doctorId}/`);
                 setIsVerified(response.data.is_verified);
@@ -110,10 +113,16 @@ function DoctorDashboard() {
                             onClick={() => setActiveMenu('appointmentHistory')}
                         >
                             Appointment History
-                        </li>   
+                        </li>
+                        <li 
+                            className={`menu-item ${activeMenu === 'chats' ? 'active' : ''}`} 
+                            onClick={() => setActiveMenu('chats')}
+                        >
+                            Chats
+                        </li>
                         <li className="menu-item">Profile</li>
                         <li className="menu-item">Verification</li>
-                        <li className="menu-item logout"  onClick={handleLogout}>Logout</li>
+                        <li className="menu-item logout" onClick={handleLogout}>Logout</li>
                     </ul>
                 </aside>
 
@@ -164,6 +173,7 @@ function DoctorDashboard() {
                     {activeMenu === 'appointmentManagement' && <AppointmentManagement />}
                     {activeMenu === 'notifications' && <DoctorNotificationPage/> }
                     {activeMenu === 'appointmentHistory' && <AppointmentHistory doctorId={doctorId} />}
+                    {activeMenu === 'chats' && <ChatArea userType="doctor" />}
                 </main>
             </div>
             <Footer />

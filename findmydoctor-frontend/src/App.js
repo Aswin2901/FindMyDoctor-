@@ -19,6 +19,8 @@ import NotificationPage from './pages/User/Notification/NotificationPage';
 import DoctorNotificationPage from './pages/Doctor/DoctorNotification/DoctorNotificationPage';
 import Intro from './pages/Intro';
 import ServicePage from './pages/User/ServicePage/ServicePage';
+import Sidebar from './components/Chat/SideBar/Sidebar';
+import ChatArea from './components/Chat/ChatArea/ChatArea';
 
 function App() {
   return (

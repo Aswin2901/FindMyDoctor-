@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +51,8 @@ INSTALLED_APPS = [
     'appointments',
     'social_django',
     'dj_rest_auth',
+    'chat',
+
 ]
 
 MIDDLEWARE = [
@@ -87,7 +90,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'findmydoctor.wsgi.application'
+# WSGI_APPLICATION = 'findmydoctor.wsgi.application'
+
+ASGI_APPLICATION = 'findmydoctor.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default":{
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [("127.0.0.1" , 6379)]},
+    }
+}
 
 
 

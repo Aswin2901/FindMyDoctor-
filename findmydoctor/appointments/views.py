@@ -2,7 +2,9 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from accounts.models import Notification
+from accounts.models import Notification , User
+from doctors.models import Doctor
+
 from .models import Appointment
 from .serializers import AppointmentSerializer
 
@@ -59,5 +61,43 @@ def cancel_appointment(request, appointment_id):
         return Response({'message': 'Appointment canceled successfully.'}, status=status.HTTP_200_OK)
     except Appointment.DoesNotExist:
         return Response({'error': 'Appointment not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def patients_of_doctor(request, doctor_id):
+    try:
+        # Ensure the doctor exists
+        doctor = Doctor.objects.get(id=doctor_id)
+
+        # Get distinct patients who have appointments with the doctor
+        patient_ids = Appointment.objects.filter(doctor=doctor).values_list('patient', flat=True).distinct()
+        patients = User.objects.filter(id__in=patient_ids)
+
+        # Serialize the patients' data
+        patient_data = [{'id': patient.id, 'full_name': patient.full_name, 'email': patient.email} for patient in patients]
+        
+        return Response(patient_data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['GET'])
+def doctors_of_patient(request, user_id):
+    try:
+        # Ensure the patient exists
+        patient = User.objects.get(id=user_id)
+
+        # Get distinct doctors who have appointments with the patient
+        doctor_ids = Appointment.objects.filter(patient=patient).values_list('doctor', flat=True).distinct()
+        doctors = Doctor.objects.filter(id__in=doctor_ids)
+
+        # Serialize the doctors' data
+        doctor_data = [{'id': doctor.id, 'full_name': doctor.full_name, 'email': doctor.email} for doctor in doctors]
+
+        return Response(doctor_data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
