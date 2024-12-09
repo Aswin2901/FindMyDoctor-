@@ -1,5 +1,8 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from asgiref.sync import sync_to_async
+from .models import ChatMessage
+from accounts.models import User
 
 class PersonalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -26,6 +29,13 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
                 await self.accept()
 
                 print(f"User {request_user.id} connected to chat room {self.room_group_name}")
+
+                # Fetch the chat history
+                chat_history = await self.get_chat_history(self.room_group_name)
+                await self.send(text_data=json.dumps({
+                    "type": "chat_history",
+                    "messages": chat_history
+                }))
             except Exception as e:
                 print(f"Error during connection: {e}")
                 await self.close()
@@ -53,6 +63,9 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
             sender = data.get('sender' , "")
 
             if message:
+                # Save the message in the database
+                await self.save_message(self.room_group_name, message , sender)
+
                 # Broadcast the message to the group
                 await self.channel_layer.group_send(
                     self.room_group_name,
@@ -60,11 +73,10 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
                         "type": "chat_message",
                         "message": message,
                         "sender_id": self.scope['user'].id,
-                        "sender" : sender
+                        "sender": sender,
                     }
                 )
 
-    
     async def chat_message(self, event):
         """
         Receive a message from the chat room group and send it to the WebSocket client.
@@ -72,13 +84,38 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
         sender_id = event["sender_id"]
         sender = event['sender']
-       
-        
 
         # Send the message back to the WebSocket client
         await self.send(text_data=json.dumps({
+            "type": "chat_message",
             "message": message,
             "sender_id": sender_id,
-            "sender" : sender
-            
+            "sender": sender,
         }))
+
+    @sync_to_async
+    def save_message(self, group_name, message , sender):
+        """
+        Save a message to the database.
+        """
+        print(sender)
+        ChatMessage.objects.create(
+            group_name=group_name,
+            message=message,
+            sender=sender,
+        )
+
+    @sync_to_async
+    def get_chat_history(self, group_name):
+        """
+        Fetch chat history for a specific group.
+        """
+        messages = ChatMessage.objects.filter(group_name=group_name).order_by('timestamp')
+        return [
+            {
+                "message": msg.message,
+                "timestamp": msg.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                "sender" : msg.sender,
+            }
+            for msg in messages
+        ]

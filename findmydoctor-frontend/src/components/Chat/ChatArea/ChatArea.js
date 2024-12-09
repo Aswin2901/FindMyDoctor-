@@ -29,13 +29,25 @@ function ChatArea({ userType }) {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          text: data.message,
-          sender: data.sender,
-        },
-      ]);
+
+      if (data.type === 'chat_history') {
+        // Add chat history to the messages state
+        const history = data.messages.map((msg) => ({
+          text: msg.message,
+          sender: msg.sender || 'unknown',
+          timestamp: msg.timestamp,
+        }));
+        setMessages(history);
+      } else if (data.type === 'chat_message') {
+        // Add a new message to the messages state
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            text: data.message,
+            sender: data.sender,
+          },
+        ]);
+      }
     };
 
     socket.onclose = () => {
@@ -60,10 +72,7 @@ function ChatArea({ userType }) {
   const groupedMessages = [];
   messages.forEach((msg, index) => {
     const previousMessage = messages[index - 1];
-    if (
-      !previousMessage ||
-      previousMessage.sender !== msg.sender
-    ) {
+    if (!previousMessage || previousMessage.sender !== msg.sender) {
       groupedMessages.push({
         sender: msg.sender,
         messages: [msg.text],
@@ -75,9 +84,9 @@ function ChatArea({ userType }) {
 
   return (
     <div className="chat-container">
-      <Sidebar 
-        userType={userType} 
-        onSelectChat={setActiveChat} 
+      <Sidebar
+        userType={userType}
+        onSelectChat={setActiveChat}
       />
       <div className="chat-area">
         {activeChat ? (
@@ -87,9 +96,7 @@ function ChatArea({ userType }) {
             </div>
             <div className="messages">
               {groupedMessages.map((group, index) => (
-                console.log('call') ,
-
-                <MessageGroup 
+                <MessageGroup
                   key={index}
                   messages={group.messages}
                   isSender={group.sender === userType}
