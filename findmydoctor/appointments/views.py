@@ -9,6 +9,7 @@ from .models import Appointment , Notification
 from .serializers import AppointmentSerializer
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.http import JsonResponse
 
 @api_view(['POST'])
 def create_appointment(request):
@@ -153,3 +154,24 @@ def mark_notification_as_read(request, notification_id):
         return Response({"message": "Notification marked as read."}, status=status.HTTP_200_OK)
     except Notification.DoesNotExist:
         return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['GET'])
+def get_dashboard_counts(request):
+    total_doctors = Doctor.objects.count()
+    total_users = User.objects.count()
+    total_appointments = Appointment.objects.count()
+    new_appointments = Appointment.objects.filter(status='new').count()  # Adjust the status condition as per your model
+    return JsonResponse({
+        "total_doctors": total_doctors,
+        "total_users": total_users,
+        "total_appointments": total_appointments,
+        "new_appointments": new_appointments,
+    })
+
+@api_view(['GET'])
+def get_appointments(request):
+    appointments = Appointment.objects.all().values(
+        'id', 'doctor__full_name', 'patient__full_name', 'date', 'time', 'status'
+    )
+    
+    return JsonResponse(list(appointments), safe=False)

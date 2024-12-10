@@ -377,17 +377,22 @@
 }
 
 /* Filter Section */
-.filter-section {
+.admin-filter-section {
     width: 200px;
-    height: 150px;
+    height: 10vh;
+    padding: 5px;
     position: relative;
     display: flex;
     align-items: center;
     margin-bottom: 20px;
     gap: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd; /* Border for box effect */
+    text-align: left;
 }
 
-.filter-section label {
+.admin-filter-section label {
     font-size: small;
     font-weight: bold;
     margin-right: 5px;
@@ -395,7 +400,7 @@
 
 
 
-.filter-section select {
+.admin-filter-section select {
     padding: 8px;
     font-size: 14px;
     border: 1px solid #ccc;
@@ -405,6 +410,6 @@
     transition: border-color 0.3s;
 }
 
-.filter-section select:hover {
+.admin-filter-section select:hover {
     border-color: #007bff;
 }

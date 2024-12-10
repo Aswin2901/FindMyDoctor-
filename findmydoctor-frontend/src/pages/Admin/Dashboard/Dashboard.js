@@ -17,6 +17,14 @@ const Dashboard = () => {
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [dashboardCounts, setDashboardCounts] = useState({
+        totalDoctors: 0,
+        totalUsers: 0,
+        totalAppointments: 0,
+        newAppointments: 0,
+    })
+    const [appointments, setAppointments] = useState([]);
+
     const navigate = useNavigate();
 
     // Pagination calculations
@@ -41,6 +49,23 @@ const Dashboard = () => {
             }
         };
         fetchRecentDoctors();
+
+        const fetchDashboardCounts = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/appointments/dashboard/counts/');
+                const { total_doctors, total_users, total_appointments, new_appointments } = response.data;
+                setDashboardCounts({
+                    totalDoctors: total_doctors,
+                    totalUsers: total_users,
+                    totalAppointments: total_appointments,
+                    newAppointments: new_appointments,
+                });
+            } catch (error) {
+                console.error('Error fetching dashboard counts:', error);
+            }
+        };
+    
+        fetchDashboardCounts();
     }, []);
 
     // Fetch doctors list
@@ -50,6 +75,15 @@ const Dashboard = () => {
             setDoctorsList(response.data);
         } catch (error) {
             console.error('Error fetching doctors list:', error);
+        }
+    };
+
+    const fetchAppointments = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/appointments/all_appointments/');
+            setAppointments(response.data);
+        } catch (error) {
+            console.error('Error fetching appointments:', error);
         }
     };
 
@@ -70,6 +104,7 @@ const Dashboard = () => {
         setErrorMessage('');
         if (section === 'doctors') fetchDoctorsList();
         if (section === 'users') fetchUsersList();
+        if (section === 'appointments') fetchAppointments();
     };
 
     // Logout function
@@ -150,7 +185,11 @@ const Dashboard = () => {
                         >
                             Dashboard
                         </li>
-                        <li className="menu-item">Appointment Management</li>
+                        <li className={`menu-item ${activeSection === 'appointments' ? 'active' : ""}`}
+                            onClick={() => handleMenuClick('appointments')}
+                         >
+                            Appointments 
+                        </li>
                         <li
                             className={`menu-item ${activeSection === 'doctors' ? 'active' : ''}`}
                             onClick={() => handleMenuClick('doctors')}
@@ -175,19 +214,19 @@ const Dashboard = () => {
                         <>
                             <div className="categories">
                                 <div className="category-card">
-                                    <h3>17</h3>
+                                    <h3>{dashboardCounts.newAppointments || 5}</h3>
                                     <p>New Appointments</p>
                                 </div>
                                 <div className="category-card">
-                                    <h3>176</h3>
+                                    <h3>{dashboardCounts.totalAppointments || 0}</h3>
                                     <p>Total Appointments</p>
                                 </div>
                                 <div className="category-card">
-                                    <h3>300</h3>
+                                    <h3>{ dashboardCounts.totalUsers || 0}</h3>
                                     <p>Total Users</p>
                                 </div>
                                 <div className="category-card">
-                                    <h3>20</h3>
+                                    <h3>{dashboardCounts.totalDoctors || 0}</h3>
                                     <p>Total Doctors</p>
                                 </div>
                             </div>
@@ -212,10 +251,37 @@ const Dashboard = () => {
                         </>
                     )}
 
+                    {activeSection === 'appointments' && (
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Appointment ID</th>
+                                    <th>Doctor</th>
+                                    <th>User</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {appointments.map((appointment) => (
+                                    <tr key={appointment.id}>
+                                        <td>{appointment.id}</td>
+                                        <td>{appointment.doctor__full_name}</td>
+                                        <td>{appointment.patient__full_name}</td>
+                                        <td>{appointment.date}</td>
+                                        <td>{appointment.time}</td>
+                                        <td>{appointment.status}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+
                     {/* Doctors Section */}
                     {activeSection === 'doctors' && !selectedDoctor && (
                         <>
-                            <div className="filter-section">
+                            <div className="admin-filter-section">
                                 <label htmlFor="statusFilter">Filter by Status:</label>
                                 <select
                                     id="statusFilter"
