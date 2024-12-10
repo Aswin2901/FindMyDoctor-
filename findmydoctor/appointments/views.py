@@ -143,3 +143,13 @@ def doctors_of_patient(request, user_id):
         return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['PATCH'])
+def mark_notification_as_read(request, notification_id):
+    try:
+        notification = Notification.objects.get(id=notification_id)
+        notification.is_read = True
+        notification.save()
+        return Response({"message": "Notification marked as read."}, status=status.HTTP_200_OK)
+    except Notification.DoesNotExist:
+        return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)

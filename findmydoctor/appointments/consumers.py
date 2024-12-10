@@ -49,6 +49,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             notifications = Notification.objects.filter(group_name=group_name).order_by('-created_at')
             serialized_notifications = [
                 {
+                    "id": notification.id ,
                     "group_name": notification.group_name,
                     "patient_message": notification.patient_message,
                     "doctor_message": notification.doctor_message,

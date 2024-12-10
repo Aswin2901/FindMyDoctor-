@@ -262,15 +262,13 @@ def get_available_slots(request):
         # Parse the date
         date = datetime.strptime(date, "%Y-%m-%d").date()
 
-        print('date:', date)
         
-        print(AppointmentAvailability.objects.filter(doctor=1, date='2024-11-20'))  
         # Fetch the doctor's availability for the date
         availability = AppointmentAvailability.objects.filter(doctor=doctor_id, date=date).first()
-        print('availability:', availability)
+
 
         if not availability:
-            print('availability is not available')
+            
             return JsonResponse({'available_slots': [], 'message': 'No availability for the selected date.'}, status=200)
 
         # Generate all potential slots
@@ -280,27 +278,21 @@ def get_available_slots(request):
             availability.duration
         )
         
-        print('all slots:', all_slots)
-
         # Fetch break times for the availability
         break_times = BreakTime.objects.filter(availability=availability)
         booked_appointments = Appointment.objects.filter(doctor_id=doctor_id, date=date)
         
-        print('break_times:', break_times)
-        print('booked_appointments:', booked_appointments)
         
         # Filter out breaks and booked slots
         available_slots = []
         for slot in all_slots:
             slot_time = datetime.strptime(slot, "%H:%M").time()
-            print('slot_time:', slot_time)
             in_break = any(is_time_in_range(break_time.start_time, break_time.end_time, slot_time)
                            for break_time in break_times)
             is_booked = booked_appointments.filter(time=slot_time).exists()
 
             if not in_break and not is_booked:
                 available_slots.append(slot)
-        print('available_slots:', available_slots)
 
         return JsonResponse({'available_slots': available_slots}, status=200)
 

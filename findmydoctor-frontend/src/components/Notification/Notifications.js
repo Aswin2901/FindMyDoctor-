@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import "./Notifications.css"; // Import the CSS file for styles
 
@@ -29,12 +30,12 @@ const Notifications = ({ userId, role }) => {
             const data = JSON.parse(event.data);
 
             if (data.type === "old_notifications") {
+                console.log('data :' ,data.data)
                 setNotifications(data.data);
             } else if (data.type === "new_notification") {
-                alert(data.notification.type)
                 setNotifications((prevNotifications) => [
-                    data.notification, // Add the new notification at the top
-                    ...prevNotifications, // Keep the previous notifications
+                    data.notification, 
+                    ...prevNotifications, 
                 ]);
             }
         };
@@ -48,10 +49,28 @@ const Notifications = ({ userId, role }) => {
         };
     }, [userId]);
 
-    const markAsRead = (index) => {
-        setNotifications((prev) =>
-            prev.map((notif, i) => (i === index ? { ...notif, is_read: true } : notif))
-        );
+    const markAsRead = async (index, notificationId) => {
+        try {
+            const response = await axios.patch(
+                `http://127.0.0.1:8000/appointments/notifications/${notificationId}/mark-as-read/`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                    },
+                }
+            );
+    
+            if (response.status === 200) {
+                setNotifications((prev) =>
+                    prev.map((notif, i) =>
+                        i === index ? { ...notif, is_read: true } : notif
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error marking notification as read:", error);
+        }
     };
 
     const closeAlert = () => {
@@ -122,7 +141,7 @@ const Notifications = ({ userId, role }) => {
                                 {!notif.is_read && (
                                     <button
                                         className="mark-read-button"
-                                        onClick={() => markAsRead(index)}
+                                        onClick={() => markAsRead(index, notif.id)}
                                     >
                                         Mark as Read
                                     </button>

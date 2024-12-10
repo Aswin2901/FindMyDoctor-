@@ -1,102 +1,161 @@
-import React, { useState, useEffect } from 'react';
-import './DoctorNav.css';
-import logo from '../../../Images/icon.svg';
-import axios from 'axios';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import "./DoctorNav.css";
+import logo from "../../../Images/icon.svg";
+import axios from "axios";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const DoctorNav = () => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const navigate = useNavigate();
+    const auth = useAuth();
+    const isAuthenticated = auth.auth.is_authenticated;
+    const user = auth.auth.user;
+
+    const [userId, setUserId] = useState(user?.id || null);
     const [notifications, setNotifications] = useState([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
-    const auth = useAuth()
-    const doctorId = auth.auth.user.id
-    const navigate = useNavigate()
+    const [alertBox, setAlertBox] = useState({
+        isVisible: false,
+        message: "",
+        notificationId: null,
+    });
 
+    // Update userId dynamically when `user` changes
     useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8000/doctors/get-notifications/${doctorId}`); // Adjust URL as needed
-                const doctorNotifications = response.data.filter(
-                    (notif) => notif.doctor_is_read === false
-                );
-                const unreadNotifications = response.data.filter(
-                    (notif) => notif.doctor_is_read === false
-                );
+        if (user) {
+            setUserId(user.id);
+        }
+    }, [user]);
 
-                setNotifications(unreadNotifications);
-                setUnreadCount(unreadNotifications.length);
-                
-            } catch (error) {
-                console.error('Error fetching notifications:', error);
+    // WebSocket connection for notifications
+    useEffect(() => {
+        if (isAuthenticated && userId) {
+            const token = localStorage.getItem("access_token");
+
+            if (!token) {
+                console.error("Access token not found. Please log in.");
+                return;
             }
-        };
 
-        fetchNotifications();
-    }, []);
+            const socket = new WebSocket(
+                `ws://127.0.0.1:8000/ws/notifications/${userId}/?token=${token}`
+            );
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === "old_notifications") {
+                    setNotifications(data.data);
+                    setUnreadCount(data.data.filter((notif) => !notif.is_read).length);
+                } else if (data.type === "new_notification") {
+                    setNotifications((prevNotifications) => [
+                        data.notification,
+                        ...prevNotifications,
+                    ]);
+                    setUnreadCount((prevCount) => prevCount + 1);
+
+                    // Show custom alert box for the new notification
+                    setAlertBox({
+                        isVisible: true,
+                        message: data.notification.doctor_message,
+                        notificationId: data.notification.id,
+                    });
+                }
+            };
+
+            socket.onclose = () => console.log("WebSocket disconnected");
+            socket.onerror = (error) => console.error("WebSocket error", error);
+
+            return () => {
+                socket.close();
+            };
+        }
+    }, [isAuthenticated, userId]);
 
     const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
+        setIsDropdownOpen((prev) => !prev);
     };
 
-    const handleMarkAsRead = async (notificationId) => {
-        try {
-            await axios.patch(
-                `http://localhost:8000/doctors/mark-as-read/${notificationId}/`
-            );
-            setNotifications((prev) =>
-                prev.filter((notif) => notif.id !== notificationId)
-            );
-            setUnreadCount((prev) => prev - 1);
-        } catch (error) {
-            console.error('Error marking notification as read:', error);
-        }
+    const handleReadIt = () => {
+        navigate('/doctordashboard', { state: { activeMenu: 'notifications' } })
+        setAlertBox({ isVisible: false, message: "", notificationId: null });
+    };
+
+    const handleCloseAlert = () => {
+        setAlertBox({ isVisible: false, message: "", notificationId: null });
     };
 
     return (
         <nav className="navbar">
             <div className="navbar-logo">
                 <img src={logo} alt="Find My Doctor Logo" />
-                <span>FIND <span className="highlight">MY</span> DOCTOR</span>
+                <span>
+                    FIND <span className="highlight">MY</span> DOCTOR
+                </span>
             </div>
-            <div className="navbar-notification">
-                <div className="notification-button" onClick={toggleDropdown}>
-                    <i className="fa fa-bell"></i>
-                    {unreadCount > 0 && (
-                        <span className="notification-badge">{unreadCount}</span>
+            <div className="navbar-links">
+                <div className="navbar-notification">
+                    <div className="notification-button" onClick={toggleDropdown}>
+                        <i className="fa fa-bell"></i>
+                        {unreadCount > 0 && (
+                            <span className="notification-badge">{unreadCount}</span>
+                        )}
+                    </div>
+                    {isDropdownOpen && (
+                        <div className="notification-dropdown">
+                            {notifications.length > 0 ? (
+                                notifications
+                                    .slice(0, 3)
+                                    .map((notif) => (
+                                        <div
+                                            key={notif.id}
+                                            className={`notification-item ${
+                                                notif.is_read ? "read" : "unread"
+                                            }`}
+                                        >
+                                            <p>
+                                                <strong>{notif.type}</strong>
+                                            </p>
+                                            <p>{notif.doctor_message}</p>
+                                        </div>
+                                    ))
+                            ) : (
+                                <p className="no-notifications">No new notifications</p>
+                            )}
+                            <div className="view-all">
+                                <button
+                                    onClick={() => navigate('/doctordashboard', { state: { activeMenu: 'notifications' } })}
+                                >
+                                    View All
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </div>
-                {isDropdownOpen && (
-                    <div className="notification-dropdown">
-                        {notifications.length > 0 ? (
-                            notifications.map((notif) => (
-                                <div
-                                    key={notif.id}
-                                    className="notification-item unread"
-                                >
-                                    <p>
-                                        <strong>{notif.type}</strong>
-                                    </p>
-                                    <p>{notif.doctor_message}</p>
-                                    <button
-                                        className="mark-read-btn"
-                                        onClick={() => handleMarkAsRead(notif.id)}
-                                    >
-                                        Mark as Read
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="no-notifications">No new notifications</p>
-                        )}
-                        <div className="view-all">
-                            <button onClick={() => navigate('/doctor/notification') }>
-                                View All
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <div className="navbar-user-icon">
+                    {isAuthenticated ? (
+                        <button onClick={() => navigate("/doctor/profile")}>
+                            <i className="fa fa-user"></i>
+                        </button>
+                    ) : (
+                        <button onClick={() => navigate("/")}>Login</button>
+                    )}
+                </div>
             </div>
+            {alertBox.isVisible && (
+                <div className="custom-alert-box">
+                    <p className="alert-message">{alertBox.message}</p>
+                    <div className="alert-buttons">
+                        <button className="alert-read-btn" onClick={handleReadIt}>
+                            Read It
+                        </button>
+                        <button className="alert-close-btn" onClick={handleCloseAlert}>
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { json, useNavigate } from 'react-router-dom';
+import { json, useLocation, useNavigate } from 'react-router-dom';
 import './DoctorDashboard.css';
 import doctorImage from '../../../Images/doctor-1.jpg';
 import Footer from '../../../components/Footer/Footer';
@@ -22,7 +22,14 @@ function DoctorDashboard() {
     const auth = useAuth();
     const [ doctorId , setdoctorId ] = useState(auth.auth.user.id)
     const user = JSON.parse(localStorage.getItem("user"));
+    const location = useLocation()
 
+    useEffect(() => {
+        // Set activeMenu from location state if available
+        if (location.state?.activeMenu) {
+            setActiveMenu(location.state.activeMenu);
+        }
+    }, [location.state]);
     
 
 
@@ -54,6 +61,7 @@ function DoctorDashboard() {
 
         fetchAppointments();
     }, [doctorId]);
+
 
     const handleLogout = () => {
         const confirmLogout = window.confirm('Are you sure you want to log out?');
