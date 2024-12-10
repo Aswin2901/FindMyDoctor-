@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { json, useNavigate } from 'react-router-dom';
 import './DoctorDashboard.css';
 import doctorImage from '../../../Images/doctor-1.jpg';
 import Footer from '../../../components/Footer/Footer';
@@ -11,6 +11,7 @@ import AppointmentManagement from '../AppointmentManagement/AppointmentManagemen
 import AppointmentHistory from '../AppointmentHistory/AppointmentHistory';
 import Calendar from 'react-calendar';
 import ChatArea from '../../../components/Chat/ChatArea/ChatArea';
+import Notifications from '../../../components/Notification/Notifications';
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
@@ -20,6 +21,9 @@ function DoctorDashboard() {
     const navigate = useNavigate();
     const auth = useAuth();
     const [ doctorId , setdoctorId ] = useState(auth.auth.user.id)
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    
 
 
 
@@ -171,7 +175,7 @@ function DoctorDashboard() {
                         </div>
                     )}
                     {activeMenu === 'appointmentManagement' && <AppointmentManagement />}
-                    {activeMenu === 'notifications' && <DoctorNotificationPage/> }
+                    {activeMenu === 'notifications' && <Notifications userId={doctorId} role={user.role} /> }
                     {activeMenu === 'appointmentHistory' && <AppointmentHistory doctorId={doctorId} />}
                     {activeMenu === 'chats' && <ChatArea userType="doctor" />}
                 </main>

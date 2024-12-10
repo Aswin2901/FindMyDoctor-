@@ -3,21 +3,24 @@ import './ProfilePage.css';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import MyDoctorsPage from '../MyDoctor.js/MyDoctorsPage';
 import ChatPage from '../ChatPage/ChatPage';
 import defaultProfilePicture from '../../../Images/profile-icon.png';
 import { useAuth } from '../../../contexts/AuthContext';
 import * as yup from 'yup'; // Importing yup for validation
 import ChatArea from '../../../components/Chat/ChatArea/ChatArea';
+import Notifications from '../../../components/Notification/Notifications';
 
 const ProfilePage = () => {
     const { logout, auth } = useAuth();
     const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem('user'));
     const userId = auth.user.id;
-    const [activeSection, setActiveSection] = useState("profile");
+    const [activeSection, setActiveSection] = useState('profile');
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
+    const location = useLocation()
     const [userData, setUserData] = useState({
         name: '',
         gender: '',
@@ -36,6 +39,13 @@ const ProfilePage = () => {
         mobile: yup.string().matches(/^\d{10}$/, 'Mobile number must be 10 digits.').required('Mobile number is required.'),
         address: yup.string().required('Address is required.'),
     });
+
+    useEffect(() => {
+        if (location.state?.section) {
+            console.log('locaton state' , location.state.section)
+            setActiveSection(location.state.section);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         if (!userId) {
@@ -236,7 +246,13 @@ const ProfilePage = () => {
 
     const renderChatSection = () => (
         <div style={{ width: '100%' }}>
-            <ChatArea userType="patient" /> 
+            <ChatArea userType="patient" />
+        </div>
+    );
+
+    const renderNotificationSection = () => (
+        <div style={{ width: '100%' }}>
+            <Notifications userId={userId} role={user.role} />
         </div>
     );
 
@@ -271,24 +287,32 @@ const ProfilePage = () => {
                         >
                             Chat
                         </li>
-
+                        <li
+                            className={activeSection === 'notification' ? 'active' : ''}
+                            onClick={() => setActiveSection('notification')}
+                        >
+                            Notifications
+                        </li>
                         <li onClick={handleLogout}>Logout</li>
                     </ul>
                 </div>
+
                 <div className="profile-details">
                     {loading ? (
                         <p>Loading...</p>
-                    ) : error ? (
-                        <p className="error-message">{error}</p>
+                    ) : activeSection === 'profile' ? (
+                        renderProfileSection()
+                    ) : activeSection === 'myDoctors' ? (
+                        renderMyDoctorsSection()
+                    ) : activeSection === 'chat' ? (
+                        renderChatSection()
+                    ) : activeSection === 'notification' ? (
+                        renderNotificationSection()
                     ) : (
-                        activeSection === 'profile'
-                            ? renderProfileSection()
-                            : activeSection === 'myDoctors'
-                            ? renderMyDoctorsSection()
-                            : renderChatSection() // Render the Chat section when active
+                        <p>Select a section</p>
                     )}
                 </div>
-            </div><br />
+            </div>
             <Footer />
         </div>
     );

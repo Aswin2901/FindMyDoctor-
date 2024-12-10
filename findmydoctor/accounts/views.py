@@ -20,7 +20,8 @@ import requests
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from .models import User , MyDoctor , Notification
+from .models import User , MyDoctor
+from appointments.models import Notification
 from doctors.models import Doctor
 from doctors.serializers import DoctorSerializer
 from rest_framework.decorators import api_view, permission_classes

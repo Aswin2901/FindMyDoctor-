@@ -2,28 +2,71 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from accounts.models import Notification , User
+from accounts.models import  User
 from doctors.models import Doctor
 
-from .models import Appointment
+from .models import Appointment , Notification
 from .serializers import AppointmentSerializer
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 @api_view(['POST'])
 def create_appointment(request):
     serializer = AppointmentSerializer(data=request.data)
     if serializer.is_valid():
         appointment = serializer.save()
-        print('appointment ' , appointment)
-        
-        # Create a notification for the user after the appointment is created
+
+        # Create notification for the patient
         Notification.objects.create(
-            user=appointment.patient,
-            doctor=appointment.doctor,
+            group_name=f"notifications_{appointment.patient.id}",
+            patient_message=f"Appointment created successfully on {appointment.date} at {appointment.time}. Please be ready for it.",
+            doctor_message=None,
             type="new appointment",
-            doctor_message = f'{appointment.patient.full_name} Taken a appointment on {appointment.date} at {appointment.time}.',
-            message=f"Appointment created successfully on {appointment.date} at {appointment.time}. Please be ready for it."
+            is_read=False
         )
-        
+
+        # Create notification for the doctor
+        Notification.objects.create(
+            group_name=f"notifications_{appointment.doctor.id}",
+            patient_message=None,
+            doctor_message=f"{appointment.patient.full_name} has booked an appointment on {appointment.date} at {appointment.time}.",
+            type="new appointment",
+            is_read=False
+        )
+
+        # Send real-time notifications
+        channel_layer = get_channel_layer()
+
+        # Notify patient
+        async_to_sync(channel_layer.group_send)(
+            f"notifications_{appointment.patient.id}",
+            {
+                "type": "send_notification",
+                "notification": {
+                    "group_name": f"notifications_{appointment.patient.id}",
+                    "patient_message": f"Appointment created successfully on {appointment.date} at {appointment.time}. Please be ready for it.",
+                    "type": "new appointment",
+                    "is_read": False,
+                    "created_at": appointment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                },
+            },
+        )
+
+        # Notify doctor
+        async_to_sync(channel_layer.group_send)(
+            f"notifications_{appointment.doctor.id}",
+            {
+                "type": "send_notification",
+                "notification": {
+                    "group_name": f"notifications_{appointment.doctor.id}",
+                    "doctor_message": f"{appointment.patient.full_name} has booked an appointment on {appointment.date} at {appointment.time}.",
+                    "type": "new appointment",
+                    "is_read": False,
+                    "created_at": appointment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                },
+            },
+        )
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -33,7 +76,6 @@ def appointment_history(request, doctor_id):
     try:
         appointments = Appointment.objects.filter(doctor_id=doctor_id).order_by('-date', '-time')
         serializer = AppointmentSerializer(appointments, many=True)
-        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
