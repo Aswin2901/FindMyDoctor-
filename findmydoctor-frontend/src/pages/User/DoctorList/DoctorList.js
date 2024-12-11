@@ -150,7 +150,7 @@ const DoctorList = () => {
                     <p>Gender: {doctor.gender}</p>
                     <p>Experience: {doctor.experience} years</p>
                     <p>Hospital: {doctor.hospital}</p>
-                    <p>Clinic: {doctor.clinic || 'N/A'}</p>
+                    <p>Clinic Address: {doctor.clinic_address || 'N/A'}</p>
                     <div className="doctor-actions">
                       <button
                         className="appointment-btn"

@@ -33,6 +33,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_of_birth = models.DateField(null=True)
     state = models.CharField(max_length=50 , null=True)
     address = models.TextField(null=True)
+    
+    location = models.TextField(blank=True, null=True)  # New field
+    latitude = models.FloatField(blank=True, null=True)  # New field
+    longitude = models.FloatField(blank=True, null=True)
 
     # Add these fields for permissions
     is_staff = models.BooleanField(default=False)

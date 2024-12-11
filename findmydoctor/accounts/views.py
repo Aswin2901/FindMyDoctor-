@@ -209,6 +209,7 @@ def get_user_profile(request, userId):
             "gender": user.gender,
             "phone": user.phone,
             "address": user.address,
+            "location": user.location,
         }
         
         return Response(user_data)
@@ -309,18 +310,36 @@ def mark_notification_as_read(request, notification_id):
         print(e)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import User  # Update this import to match your actual User model location
+
 @api_view(['PATCH'])
 def update_user_profile(request, user_id):
-    print(user_id)
     try:
         user = User.objects.get(id=user_id)
+        
+        print('logitude' ,request.data.get('longitude', user.longitude))
+        print('latitude' ,request.data.get('latitude', user.latitude))
+        print('location ', request.data.get('location', user.location))
+        # Update existing fields
         user.full_name = request.data.get('full_name', user.full_name)
         user.phone = request.data.get('phone', user.phone)
         user.gender = request.data.get('gender', user.gender)
+        
+        # Update location-related fields
+        user.location = request.data.get('location', user.location)
+        user.latitude = request.data.get('latitude', user.latitude)
+        user.longitude = request.data.get('longitude', user.longitude)
+        
         user.save()
+
         return Response({'message': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
     
 class BlockUserView(APIView):
     def patch(self, request, user_id):

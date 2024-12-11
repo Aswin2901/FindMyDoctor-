@@ -91,7 +91,7 @@ class GetDoctorSerializer(serializers.ModelSerializer):
     specialty = serializers.CharField(source='verification.specialty', read_only=True)
     experience = serializers.IntegerField(source='verification.experience', read_only=True)
     hospital = serializers.CharField(source='verification.hospital', read_only=True)
-    clinic = serializers.CharField(source='verification.clinic', read_only=True)
+    clinic_address = serializers.CharField(source='verification.clinic_address', read_only=True)
 
     class Meta:
         model = Doctor

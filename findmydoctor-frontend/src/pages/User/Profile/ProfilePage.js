@@ -11,6 +11,39 @@ import { useAuth } from '../../../contexts/AuthContext';
 import * as yup from 'yup'; // Importing yup for validation
 import ChatArea from '../../../components/Chat/ChatArea/ChatArea';
 import Notifications from '../../../components/Notification/Notifications';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+
+import L from 'leaflet';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+const LocationPicker = ({ setLocations }) => {
+    const [markerPosition, setMarkerPosition] = useState([51.505, -0.09]); // Default position
+
+    useMapEvents({
+        click(e) {
+            const { lat, lng } = e.latlng;
+            setMarkerPosition([lat, lng]);
+
+            // Fetch address using reverse geocoding (Nominatim API)
+            axios
+                .get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+                .then((response) => {
+                    const address = response.data.display_name;
+                    setLocations({ address, latitude: lat, longitude: lng });
+                })
+                .catch((error) => console.error('Error fetching address:', error));
+        },
+    });
+
+    return markerPosition ? <Marker position={markerPosition} /> : null;
+};
 
 const ProfilePage = () => {
     const { logout, auth } = useAuth();
@@ -21,6 +54,7 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const location = useLocation()
+    const [locations, setLocations] = useState({ address: '', latitude: null, longitude: null });
     const [userData, setUserData] = useState({
         name: '',
         gender: '',
@@ -70,6 +104,7 @@ const ProfilePage = () => {
                     email: response.data.email,
                     mobile: response.data.phone,
                     address: response.data.address,
+                    location: response.data.location,
                 });
             } catch (error) {
                 setError('Failed to load profile data.');
@@ -98,19 +133,23 @@ const ProfilePage = () => {
             // Validate the data using yup
             await validationSchema.validate(userData, { abortEarly: false });
             setFieldErrors({}); // Clear previous field errors
-
+    
             const accessToken = localStorage.getItem('access_token');
             if (!accessToken) {
                 setError('Access token is missing.');
                 return;
             }
-
+    
+            // Send data to the backend, including location, latitude, and longitude
             const response = await axios.patch(
                 `http://localhost:8000/accounts/update_user_profile/${userId}/`,
                 {
                     full_name: userData.name,
                     phone: userData.mobile,
                     gender: userData.gender,
+                    location: locations.address,
+                    latitude: locations.latitude,
+                    longitude: locations.longitude,
                 },
                 {
                     headers: {
@@ -233,6 +272,34 @@ const ProfilePage = () => {
                     <span>{userData.address}</span>
                 )}
             </div>
+            <div className="info-field">
+                <label>Location:</label>
+                {isEditing ? (
+                    <span>Select your location on the map below.</span>
+                ) : (
+                    <span>{userData.location || 'Not set'}</span>
+                )}
+            </div>
+
+            
+            {isEditing && (
+                <div className="info-field">
+                    
+                        <MapContainer
+                            center={[11.568161867727017, 76.03990184060308]} // Default map center
+                            zoom={13}
+                            style={{ height: '400px', width: '100%' }}
+                        >
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                            <LocationPicker setLocations={setLocations} />
+                        </MapContainer>
+
+                    <p>{`Latitude: ${locations.latitude || ''}, Longitude: ${locations.longitude || ''}`}</p>
+                </div>
+            )}
             {successMessage && <p className="success-message">{successMessage}</p>}
             {error && <p className="error-message">{error}</p>}
         </>
