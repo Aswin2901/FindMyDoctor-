@@ -22,6 +22,7 @@ import ServicePage from './pages/User/ServicePage/ServicePage';
 import Sidebar from './components/Chat/SideBar/Sidebar';
 import ChatArea from './components/Chat/ChatArea/ChatArea';
 import AppointmentList from './pages/User/AppointmentList/AppointmentList';
+import DoctorProfile from './pages/Doctor/DoctorProfile/DoctorProfile';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path='/doctor/notification' element= {<PrivateRoute> <DoctorNotificationPage/> </PrivateRoute>}/>
           <Route path='/service' element= {<ServicePage/>}/>
           <Route path='/user/appointment_list' element= {<PrivateRoute><AppointmentList/></PrivateRoute>}/>
+          <Route path='/doctor/profile' element= {<PrivateRoute><DoctorProfile/></PrivateRoute>} />
         </Routes>
       </Router>
     </div>

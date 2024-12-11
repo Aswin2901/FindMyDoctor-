@@ -341,3 +341,24 @@ def mark_notification_as_read(request, notification_id):
     except Exception as e:
         print(e)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class DoctorProfileView(APIView):
+    def get(self, request, doctor_id):
+        try:
+            doctor = Doctor.objects.get(id=doctor_id)
+            serializer = DoctorSerializer(doctor)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Doctor.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, doctor_id):
+        try:
+            doctor = Doctor.objects.get(id=doctor_id)
+            serializer = DoctorSerializer(doctor, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Doctor.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)

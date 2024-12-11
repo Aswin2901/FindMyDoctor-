@@ -12,7 +12,9 @@ from .views import ( doctor_signup ,
                     BreakTimeView, 
                     get_available_slots,
                     get_notifications,
-                    mark_notification_as_read
+                    mark_notification_as_read,
+                    DoctorProfileView
+                    
                     
 )
 urlpatterns = [
@@ -30,6 +32,7 @@ urlpatterns = [
     path('break-time/', BreakTimeView.as_view(), name='break-time'),
     path('availability/slots/', get_available_slots, name='get_available_slots'),
     path('get-notifications/<int:doctor_id>/' ,get_notifications , name='get_notification' ),
-    path('mark-as-read/<int:notification_id>/', mark_notification_as_read  , name='mark-as-read')
+    path('mark-as-read/<int:notification_id>/', mark_notification_as_read  , name='mark-as-read'),
+    path('profile/<int:doctor_id>/', DoctorProfileView.as_view(), name='doctor_profile'),
     
 ]

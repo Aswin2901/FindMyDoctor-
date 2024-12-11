@@ -12,6 +12,7 @@ import AppointmentHistory from '../AppointmentHistory/AppointmentHistory';
 import Calendar from 'react-calendar';
 import ChatArea from '../../../components/Chat/ChatArea/ChatArea';
 import Notifications from '../../../components/Notification/Notifications';
+import DoctorProfile from '../DoctorProfile/DoctorProfile';
 
 function DoctorDashboard() {
     const [isVerified, setIsVerified] = useState(null);
@@ -132,7 +133,11 @@ function DoctorDashboard() {
                         >
                             Chats
                         </li>
-                        <li className="menu-item">Profile</li>
+                        <li className={`menu-item ${activeMenu === 'profile' ? 'active' : ''}`}
+                        onClick={()=>{setActiveMenu('profile')}}
+                        >
+                            Profile
+                        </li>
                         <li className="menu-item">Verification</li>
                         <li className="menu-item logout" onClick={handleLogout}>Logout</li>
                     </ul>
@@ -186,6 +191,7 @@ function DoctorDashboard() {
                     {activeMenu === 'notifications' && <Notifications userId={doctorId} role={user.role} /> }
                     {activeMenu === 'appointmentHistory' && <AppointmentHistory doctorId={doctorId} />}
                     {activeMenu === 'chats' && <ChatArea userType="doctor" />}
+                    {activeMenu === 'profile' && <DoctorProfile/>}
                 </main>
             </div>
             <Footer />
