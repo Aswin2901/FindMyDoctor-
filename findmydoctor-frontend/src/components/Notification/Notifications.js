@@ -19,7 +19,7 @@ const Notifications = ({ userId, role }) => {
         }
 
         const socket = new WebSocket(
-            `ws://127.0.0.1:8000/ws/notifications/${userId}/?token=${token}`
+            `ws://127.0.0.1:8000/ws/notifications/${userId}/?token=${token}&role=${role}`
         );
 
         socket.onopen = () => {

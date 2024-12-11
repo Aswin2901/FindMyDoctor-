@@ -8,7 +8,9 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         """
         Connect to the WebSocket and join the user's notification group.
         """
-        if self.scope["user"].is_authenticated:
+        request_user = self.scope['user']
+        
+        if request_user is not None:
             self.user_id = self.scope["user"].id
             self.group_name = f"notifications_{self.user_id}"
 

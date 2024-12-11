@@ -32,41 +32,43 @@ const DoctorNav = () => {
     useEffect(() => {
         if (isAuthenticated && userId) {
             const token = localStorage.getItem("access_token");
-
+            const role = JSON.parse(localStorage.getItem("user"))?.role || "doctor";
+    
             if (!token) {
                 console.error("Access token not found. Please log in.");
                 return;
             }
-
+    
             const socket = new WebSocket(
-                `ws://127.0.0.1:8000/ws/notifications/${userId}/?token=${token}`
+                `ws://127.0.0.1:8000/ws/notifications/${userId}/?token=${token}&role=${role}`
             );
-
+    
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-
+                console.log("WebSocket Message Received:", data);
+    
                 if (data.type === "old_notifications") {
                     setNotifications(data.data);
                     setUnreadCount(data.data.filter((notif) => !notif.is_read).length);
                 } else if (data.type === "new_notification") {
+                    console.log("New Notification Received:", data.notification);
                     setNotifications((prevNotifications) => [
                         data.notification,
                         ...prevNotifications,
                     ]);
                     setUnreadCount((prevCount) => prevCount + 1);
-
-                    // Show custom alert box for the new notification
+    
                     setAlertBox({
                         isVisible: true,
-                        message: data.notification.doctor_message,
+                        message: data.notification.doctor_message || "New Notification",
                         notificationId: data.notification.id,
                     });
                 }
             };
-
+    
             socket.onclose = () => console.log("WebSocket disconnected");
             socket.onerror = (error) => console.error("WebSocket error", error);
-
+    
             return () => {
                 socket.close();
             };

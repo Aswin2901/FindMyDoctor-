@@ -18,8 +18,6 @@ function ChatArea({ userType }) {
       return;
     }
      
-    console.log('active chat :' ,activeChat.id)
-    console.log('token :' , token)
     const socket = new WebSocket(
       `ws://127.0.0.1:8000/ws/chat/${activeChat.id}/?token=${token}&role=${activeChat.userType}`
     );
