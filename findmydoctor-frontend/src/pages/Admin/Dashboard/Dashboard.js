@@ -121,6 +121,7 @@ const Dashboard = () => {
         try {
             const response = await axios.get(`http://localhost:8000/doctors/review/${doctorId}/`);
             setSelectedDoctor(response.data);
+            console.log('respose data ' , response.data)
             setErrorMessage('');
         } catch (error) {
             if (error.response && error.response.status === 404) {
@@ -338,36 +339,79 @@ const Dashboard = () => {
 
                     {/* Verification Details Section */}
                     {activeSection === 'doctors' && selectedDoctor && (
-                        <div className="verification-details">
-                            <h4>Verification Details</h4>
+                        <>
                             {errorMessage && <p className="error-message">{errorMessage}</p>}
                             {selectedDoctor && (
-                                <>
-                                    <p>Full Name: {selectedDoctor.full_name}</p>
+                                <div className="verification-details">
+                                    <h4>Verification Details for {selectedDoctor.full_name}</h4>
                                     <p>Email: {selectedDoctor.email}</p>
                                     <p>Phone: {selectedDoctor.phone}</p>
-                                    <p>State: {selectedDoctor.state}</p>
-                                    <p>Address: {selectedDoctor.address}</p>
-                                    <p>Date of Birth: {selectedDoctor.date_of_birth}</p>
-                                    <p>Gender: {selectedDoctor.gender}</p>
-                                    <div className="verification-buttons">
-                                        <button
-                                            className="btn-verify"
-                                            onClick={handleVerifyDoctor}
-                                        >
+                                    <p>Qualification: {selectedDoctor.qualification}</p>
+                                    <p>Specialty: {selectedDoctor.specialty}</p>
+                                    <p>Experience: {selectedDoctor.experience} years</p>
+                                    <p>Hospital: {selectedDoctor.hospital}</p>
+                                    <p>Clinic: {selectedDoctor.clinic_address || "N/A"}</p>
+                                    <p>License: {selectedDoctor.license}</p>
+                                    <p>Issuing Authority: {selectedDoctor.issuing_authority}</p>
+                                    <p>License Expiry Date: {selectedDoctor.expiry_date}</p>
+                                    <p>Medical Registration: {selectedDoctor.medical_registration}</p>
+
+                                    {/* Documents Section */}
+                                    <div className="document-thumbnails">
+        
+                                        <div className="document-thumbnail">
+                                            <a
+                                                href={`http://localhost:8000${selectedDoctor.id_proof}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <img
+                                                    src={`http://localhost:8000${selectedDoctor.id_proof}`}
+                                                    alt="ID Proof"
+                                                />
+                                            </a>
+                                        </div>
+                                        <div className="document-thumbnail">
+                                            <a
+                                                href={`http://localhost:8000${selectedDoctor.medical_license}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <img
+                                                    src={`http://localhost:8000${selectedDoctor.medical_license}`}
+                                                    alt="Medical License"
+                                                />
+                                            </a>
+                                           
+                                        </div>
+                                        <div className="document-thumbnail">
+                                            <a
+                                                href={`http://localhost:8000${selectedDoctor.degree_certificate}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <img
+                                                    src={`http://localhost:8000${selectedDoctor.degree_certificate}`}
+                                                    alt="Degree Certificate"
+                                                />
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="verification-actions">
+                                        <button className="btn-verify" onClick={handleVerifyDoctor}>
                                             Verify
                                         </button>
-                                        <button
-                                            className="btn-cancel"
-                                            onClick={handleCancelVerification}
-                                        >
+                                        <button className="btn-cancel" onClick={handleCancelVerification}>
                                             Cancel
                                         </button>
                                     </div>
-                                </>
+                                </div>
                             )}
-                        </div>
+                        </>
                     )}
+
 
                     {/* Users Section */}
                     {activeSection === 'users' && (

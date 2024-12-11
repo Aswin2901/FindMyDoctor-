@@ -24,6 +24,7 @@ class DoctorSignupSerializer(serializers.ModelSerializer):
         validated_data['password'] = make_password(validated_data['password'])  # Hash the password
         validated_data.pop('confirm_password')  # Remove confirm_password before saving
         doctor = Doctor.objects.create(**validated_data)
+        print('doctor' , doctor)
         return doctor
 
 
@@ -96,7 +97,7 @@ class GetDoctorSerializer(serializers.ModelSerializer):
         model = Doctor
         fields = [
             'id', 'full_name', 'email', 'phone', 'gender', 'profile_picture', 
-            'qualification', 'specialty', 'experience', 'hospital', 'clinic'
+            'qualification', 'specialty', 'experience', 'hospital', 'clinic_address'
         ]
         
 class AppointmentAvailabilitySerializer(serializers.ModelSerializer):

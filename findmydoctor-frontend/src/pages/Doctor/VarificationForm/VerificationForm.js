@@ -1,11 +1,47 @@
 import React, { useState } from 'react';
-import './VerificationForm.css';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './VerificationForm.css';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
 import * as Yup from 'yup';
 import { useAuth } from '../../../contexts/AuthContext';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix default icon issue in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+// Component for picking location on the map
+const LocationPicker = ({ setLocation }) => {
+    const [markerPosition, setMarkerPosition] = useState([51.505, -0.09]); // Default position
+
+    useMapEvents({
+        click(e) {
+            const { lat, lng } = e.latlng;
+            setMarkerPosition([lat, lng]);
+
+            // Fetch address using reverse geocoding (Nominatim API)
+            axios
+                .get(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+                )
+                .then((response) => {
+                    const address = response.data.display_name;
+                    setLocation({ address, latitude: lat, longitude: lng });
+                })
+                .catch((error) => console.error('Error fetching address:', error));
+        },
+    });
+
+    return markerPosition ? <Marker position={markerPosition} /> : null;
+};
 
 const VerificationForm = () => {
     const navigate = useNavigate();
@@ -15,15 +51,15 @@ const VerificationForm = () => {
         specialty: '',
         experience: '',
         hospital: '',
-        clinic: '',
         license: '',
         issuing_authority: '',
         expiry_date: '',
         medical_registration: '',
     });
+    const [location, setLocation] = useState({ address: '', latitude: null, longitude: null });
 
-    const auth = useAuth()
-    const doctorId = auth.auth.user.id
+    const auth = useAuth();
+    const doctorId = auth.auth.user.id;
 
     const [documentData, setDocumentData] = useState({
         idProof: null,
@@ -31,7 +67,7 @@ const VerificationForm = () => {
         degreeCertificate: null,
     });
 
-    // Yup schemas
+    // Yup validation schemas
     const profileValidationSchema = Yup.object().shape({
         qualification: Yup.string().required('Qualification is required'),
         specialty: Yup.string().required('Specialty is required'),
@@ -39,7 +75,6 @@ const VerificationForm = () => {
             .typeError('Experience must be a number')
             .required('Experience is required'),
         hospital: Yup.string().required('Hospital name is required'),
-        clinic: Yup.string().required('Clinic address is required'),
         license: Yup.string().required('License number is required'),
         issuing_authority: Yup.string().required('Issuing authority is required'),
         expiry_date: Yup.date()
@@ -67,6 +102,10 @@ const VerificationForm = () => {
         e.preventDefault();
         try {
             await profileValidationSchema.validate(profileData, { abortEarly: false });
+            if (!location.address) {
+                alert('Please select a clinic address on the map.');
+                return;
+            }
             setCurrentStep(2);
         } catch (err) {
             alert(err.errors.join('\n')); // Display validation errors
@@ -83,7 +122,9 @@ const VerificationForm = () => {
             Object.entries(profileData).forEach(([key, value]) => {
                 formData.append(key, value);
             });
-
+            formData.append('clinic_address', location.address); // Add clinic address
+            formData.append('latitude', location.latitude); // Add latitude
+            formData.append('longitude', location.longitude); // Add longitude
             Object.entries(documentData).forEach(([key, file]) => {
                 formData.append(key, file);
             });
@@ -162,15 +203,26 @@ const VerificationForm = () => {
                             />
                         </label>
                         <label>
-                            Clinic Address
-                            <input
-                                type="text"
-                                name="clinic"
-                                value={profileData.clinic}
-                                onChange={handleProfileChange}
-                                required
+                            Clinic Address (select on the map)
+                            <textarea
+                                value={location.address}
+                                readOnly
+                                placeholder="Select the location on the map"
                             />
                         </label>
+                        <div className="map-container">
+                            <MapContainer
+                                center={[51.505, -0.09]} // Default map center
+                                zoom={13}
+                                style={{ height: '400px', width: '100%' }}
+                            >
+                                <TileLayer
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                />
+                                <LocationPicker setLocation={setLocation} />
+                            </MapContainer>
+                        </div>
                         <label>
                             License Number
                             <input

@@ -28,6 +28,7 @@ from .utils import generate_time_slots, is_time_in_range
 def doctor_signup(request):
     print(request.data)
     serializer = DoctorSignupSerializer(data=request.data)
+    print(serializer.is_valid() , 'serializer')
     if serializer.is_valid():
         serializer.save()
         return Response({'message': 'Doctor registered successfully!'}, status=status.HTTP_201_CREATED)
@@ -77,33 +78,47 @@ def doctor_verification_status(request, doctor_id):
 @api_view(['POST'])
 def doctor_verification(request, doctor_id):
     try:
-        doctor = Doctor.objects.get(id = doctor_id)
+        # Fetch the doctor instance
+        doctor = Doctor.objects.get(id=doctor_id)
+
+        # Log request data and files for debugging
         print("Request Data:", request.data)
         print("Request FILES:", request.FILES)
 
+        # Extract latitude, longitude, and clinic address from the request
+        clinic_address = request.data.get('clinic_address')
+        latitude = request.data.get('latitude')
+        longitude = request.data.get('longitude')
         
-        
-        verification_data = {
-            'doctor': doctor,  
-            'qualification' : request.data.get('qualification'),
-            'specialty': request.data.get('specialty'),
-            'experience': request.data.get('experience'),
-            'hospital': request.data.get('hospital'),
-            'clinic': request.data.get('clinic'),
-            'license': request.data.get('license'),
-            'issuing_authority': request.data.get('issuing_authority'),
-            'expiry_date': request.data.get('expiry_date'),
-            'medical_registration': request.data.get('medical_registration'),
-            'id_proof': request.FILES['idProof'],
-            'medical_license': request.FILES['medicalLicense'],
-            'degree_certificate': request.FILES['degreeCertificate'],
-        }
-        
-        verification = Verification.objects.create(**verification_data)
+        print(clinic_address , latitude , longitude)
+
+        # Create verification instance
+        verification = Verification.objects.create(
+            doctor=doctor,
+            qualification=request.data.get('qualification'),
+            specialty=request.data.get('specialty'),
+            experience=request.data.get('experience'),
+            hospital=request.data.get('hospital'),
+            clinic_address=clinic_address,
+            latitude=latitude,
+            longitude=longitude,
+            license=request.data.get('license'),
+            issuing_authority=request.data.get('issuing_authority'),
+            expiry_date=request.data.get('expiry_date'),
+            medical_registration=request.data.get('medical_registration'),
+            id_proof=request.FILES.get('idProof'),
+            medical_license=request.FILES.get('medicalLicense'),
+            degree_certificate=request.FILES.get('degreeCertificate'),
+        )
+
+        # Mark the doctor form as submitted
         doctor.form_submitted = True
         doctor.save()
+
         return Response({'message': 'Verification submitted successfully'}, status=status.HTTP_201_CREATED)
-    
+
+    except Doctor.DoesNotExist:
+        return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         print(e)
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -114,11 +129,16 @@ class DoctorVerificationDetailView(APIView):
             verification = Verification.objects.get(doctor__id=doctor_id)
             doctor = Doctor.objects.get(id=doctor_id)
             serializer = DoctorReviewSerializer(verification)
+            print('serialiser' ,serializer.data)
             response_data = {
                 'doc_id': doctor.id,
                 'full_name': doctor.full_name,
                 'email': doctor.email,
                 'phone': doctor.phone,
+                'state': doctor.state,
+                'address': doctor.address,
+                'date_of_birth':doctor.date_of_birth,
+                'gender': doctor.gender, 
                 **serializer.data  # Includes serialized verification fields
             }
             return Response(response_data, status=status.HTTP_200_OK)

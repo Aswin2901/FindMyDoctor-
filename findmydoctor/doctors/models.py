@@ -26,7 +26,9 @@ class Verification(models.Model):
     specialty = models.CharField(max_length=255)
     experience = models.IntegerField()
     hospital = models.CharField(max_length=255)
-    clinic = models.CharField(max_length=255, null=True)
+    clinic_address = models.TextField(blank=True, null=True)  # New field
+    latitude = models.FloatField(blank=True, null=True)  # New field
+    longitude = models.FloatField(blank=True, null=True)
     license = models.CharField(max_length=255)
     issuing_authority = models.CharField(max_length=255)
     expiry_date = models.DateField()
