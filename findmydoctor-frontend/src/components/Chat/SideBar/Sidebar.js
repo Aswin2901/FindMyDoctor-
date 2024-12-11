@@ -23,7 +23,13 @@ function Sidebar({ userType, onSelectChat }) {
             `http://127.0.0.1:8000/appointments/patients/${userId}/doctors/`
           );
         }
-        setItems(response.data);
+        const modifiedData = response.data.map(item => ({
+          ...item,
+          userType: userType, 
+        }));
+  
+        // Set the modified data
+        setItems(modifiedData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
