@@ -56,11 +56,13 @@ const Home = () => {
         <div className="hero-content">
           <h1>Find Your Personal <span>Doctor</span> <br/> Anytime!</h1>
           <div className="action-buttons">
-            <div className="button search-button">
+            <div className="button search-button" >
               <FontAwesomeIcon icon={faSearch} className="icon" />
               <p>SEARCH</p>
             </div>
-            <div className="button appointment-button">
+            <div className="button appointment-button" onClick={()=>{
+              navigate('/user/appointment_list');
+            }}>
               <FontAwesomeIcon icon={faCalendarAlt} className="icon" />
               <p>APPOINTMENT</p>
             </div>

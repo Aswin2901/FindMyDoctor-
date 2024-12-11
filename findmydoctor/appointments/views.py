@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from accounts.models import  User
 from doctors.models import Doctor
-
+from django.utils.timezone import now
 from .models import Appointment , Notification
 from .serializers import AppointmentSerializer
 from asgiref.sync import async_to_sync
@@ -175,3 +175,51 @@ def get_appointments(request):
     )
     
     return JsonResponse(list(appointments), safe=False)
+
+
+
+@api_view(['GET'])
+def get_all_appointment(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+    current_time = now()
+    
+    
+    all_appointments = Appointment.objects.filter(
+        patient=user, 
+    )
+
+    # Manually serialize data
+    def format_appointment(appointment):
+        print(appointment)
+        return {
+            "id": appointment.id,
+            "doctor_name": appointment.doctor.full_name,
+            "doctor_id": appointment.doctor.id,
+            "date": appointment.date.strftime('%Y-%m-%d'),
+            "time": appointment.time.strftime('%H:%M:%S'),
+            "status": appointment.status,
+            "reason_for_visit": appointment.reason_for_visit,
+        }
+
+    data = {
+        "appointments": [format_appointment(app) for app in all_appointments]
+    }
+    
+    return JsonResponse(data, status=200)
+
+@api_view(['POST'])
+def user_cancel_appointment(request, appointment_id , user_id):
+    try:
+        user =  User.objects.get(id=user_id)
+        appointment = Appointment.objects.get(id=appointment_id, patient=user)
+        if appointment.status in ['pending', 'Confirmed']:
+            appointment.status = 'canceled'
+            appointment.save()
+            return Response({"message": "Appointment canceled successfully"}, status=200)
+        return Response({"error": "Cannot cancel this appointment"}, status=400)
+    except Appointment.DoesNotExist:
+        return Response({"error": "Appointment not found"}, status=404)
