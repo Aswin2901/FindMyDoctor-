@@ -365,53 +365,6 @@ class DoctorProfileView(APIView):
             return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
         
 
-def get_doctor_data():
-    """
-    Fetches all fields from Doctor and Verification models.
-
-    Returns:
-        A list of dictionaries, where each dictionary represents a doctor 
-        with all fields from both models.
-    """
-    doctors = Doctor.objects.all()
-    doctor_data = []
-
-    for doctor in doctors:
-        try:
-            verification = doctor.verification 
-        except Verification.DoesNotExist:
-            verification = None
-
-        doctor_dict = {
-            'full_name': doctor.full_name,
-            'email': doctor.email,
-            'phone': doctor.phone,
-            'gender': doctor.gender,
-            'date_of_birth': doctor.date_of_birth,
-            'state': doctor.state,
-            'address': doctor.address,
-            'profile_picture': doctor.profile_picture.url if doctor.profile_picture else None, 
-            'created_at': doctor.created_at,
-            'is_verified': doctor.is_verified,
-            'form_submitted': doctor.form_submitted,
-            'qualification': verification.qualification if verification else None,
-            'specialty': verification.specialty if verification else None,
-            'experience': verification.experience if verification else None,
-            'hospital': verification.hospital if verification else None,
-            'clinic_address': verification.clinic_address if verification else None,
-            'latitude': verification.latitude if verification else None,
-            'longitude': verification.longitude if verification else None,
-            'license': verification.license if verification else None,
-            'issuing_authority': verification.issuing_authority if verification else None,
-            'expiry_date': verification.expiry_date if verification else None,
-            'medical_registration': verification.medical_registration if verification else None,
-            'id_proof': verification.id_proof.url if verification and verification.id_proof else None,
-            'medical_license': verification.medical_license.url if verification and verification.medical_license else None,
-            'degree_certificate': verification.degree_certificate.url if verification and verification.degree_certificate else None,
-        }
-        doctor_data.append(doctor_dict)
-
-    return doctor_data
 
 @api_view(['GET'])
 def get_nearest_doctors(request):
@@ -419,23 +372,25 @@ def get_nearest_doctors(request):
         latitude = float(request.GET.get('latitude'))
         longitude = float(request.GET.get('longitude'))
     except ValueError:
-        return JsonResponse({'error': 'Invalid latitude or longitude'}, status=400)
+        return Response({'error': 'Invalid latitude or longitude'}, status=400)
 
     user_location = (latitude, longitude)
+    verified_doctors = Doctor.objects.filter(is_verified=True)
+    serializer = GetDoctorSerializer(verified_doctors, many=True)
     nearest_doctors = []
 
-    for doctor in get_doctor_data():
-        if 'latitude' in doctor and 'longitude' in doctor and doctor['latitude'] and doctor['longitude']:
-            doctor_location = (doctor['latitude'], doctor['longitude'])
+    for doctor_data in serializer.data:
+        print(doctor_data )
+        if 'latitude' in doctor_data and 'longitude' in doctor_data and doctor_data['latitude'] and doctor_data['longitude']:
+            print('sdhfjhadfhjadhfjkhdjkfhjk')
+            doctor_location = (doctor_data['latitude'], doctor_data['longitude'])
             distance = geodesic(user_location, doctor_location).km
+            print(distance)
             if distance <= 500:  # Adjust distance threshold as needed
-                nearest_doctors.append({
-                    'full_name': doctor['full_name'],
-                    'qualification': doctor['qualification'],
-                    'specialty': doctor['specialty'],
-                    # 'location': doctor.location,  - This line is incorrect
-                    'distance': round(distance, 2)
-                })
-    print(nearest_doctors , 'nearest doctors')
+                doctor_data['distance'] = round(distance, 2)
+                nearest_doctors.append(doctor_data)
+                print('hiiiiii')
+    
+    print(nearest_doctors)
 
-    return JsonResponse(nearest_doctors, safe=False)
+    return Response(nearest_doctors, status=200)

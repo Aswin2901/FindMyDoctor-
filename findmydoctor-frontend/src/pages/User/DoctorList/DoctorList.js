@@ -189,7 +189,7 @@ const DoctorList = () => {
                   <div className="doctor-info">
                     <p style={{color:'rebeccapurple', fontSize: 'large'}}>{doctor.distance ? `KM : ${doctor.distance}` : '' }</p>
                     <img
-                      src={`http://localhost:8000${doctor.profile_picture}` || defaultProfileIcon}
+                      src={ doctor.profile_picture ? `http://localhost:8000${doctor.profile_picture}` : defaultProfileIcon}
                       alt={doctor.full_name}
                       className="doctor-image"
                     />

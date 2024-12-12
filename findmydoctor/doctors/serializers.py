@@ -93,12 +93,15 @@ class GetDoctorSerializer(serializers.ModelSerializer):
     experience = serializers.IntegerField(source='verification.experience', read_only=True)
     hospital = serializers.CharField(source='verification.hospital', read_only=True)
     clinic_address = serializers.CharField(source='verification.clinic_address', read_only=True)
+    latitude = serializers.FloatField(source='verification.latitude' , read_only = True)
+    longitude = serializers.FloatField(source='verification.longitude' , read_only = True)
 
     class Meta:
         model = Doctor
         fields = [
             'id', 'full_name', 'email', 'phone', 'gender', 'profile_picture', 
-            'qualification', 'specialty', 'experience', 'hospital', 'clinic_address'
+            'qualification', 'specialty', 'experience', 'hospital', 'clinic_address' , 'latitude' ,
+            'longitude'
         ]
         
 class AppointmentAvailabilitySerializer(serializers.ModelSerializer):
