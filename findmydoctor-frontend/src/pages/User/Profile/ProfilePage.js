@@ -157,6 +157,15 @@ const ProfilePage = () => {
                     },
                 }
             );
+            setUserData({
+                name: response.data.user.full_name,
+                gender: response.data.user.gender,
+                email: response.data.user.email,
+                mobile: response.data.user.phone,
+                address: response.data.user.address,
+                location: response.data.user.location,
+            })
+            
             setSuccessMessage(response.data.message);
             setTimeout(() => setSuccessMessage(''), 3000); // Clear success message after 3 seconds
         } catch (error) {
@@ -276,7 +285,7 @@ const ProfilePage = () => {
                 <label>Location:</label>
                 {isEditing ? (
                     <span>Select your location on the map below.</span>
-                ) : (
+                ) : ( console.log('location :' , userData.location),
                     <span>{userData.location || 'Not set'}</span>
                 )}
             </div>

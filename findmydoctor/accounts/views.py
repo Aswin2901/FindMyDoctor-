@@ -239,7 +239,7 @@ def user_favorite_doctors(request, user_id):
     try:
         # Retrieve all favorite doctors for the specified user
         favorite_doctors = MyDoctor.objects.filter(user_id=user_id).select_related('doctor__verification')
-
+        
         # Check if the user has any favorite doctors
         if not favorite_doctors.exists():
             return Response({"message": "No favorite doctors found."}, status=status.HTTP_404_NOT_FOUND)
@@ -248,6 +248,7 @@ def user_favorite_doctors(request, user_id):
         response_data = []
         for fav in favorite_doctors:
             doctor = fav.doctor
+
             doctor_data = {
                 "full_name": doctor.full_name,
                 "email": doctor.email,
@@ -258,13 +259,15 @@ def user_favorite_doctors(request, user_id):
 
             # Add verification fields if they exist
             if hasattr(doctor, 'verification') and doctor.verification:
+                print(doctor.verification.clinic_address)
                 doctor_data.update({
                     "qualification": doctor.verification.qualification,
                     "specialty": doctor.verification.specialty,
                     "experience": doctor.verification.experience,
                     "hospital": doctor.verification.hospital,
-                    "clinic": doctor.verification.clinic,
+                    "clinic": doctor.verification.clinic_address,
                 })
+                print(doctor_data)
 
             response_data.append(doctor_data)
 
@@ -310,10 +313,6 @@ def mark_notification_as_read(request, notification_id):
         print(e)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .models import User  # Update this import to match your actual User model location
 
 @api_view(['PATCH'])
 def update_user_profile(request, user_id):
@@ -334,8 +333,12 @@ def update_user_profile(request, user_id):
         user.longitude = request.data.get('longitude', user.longitude)
         
         user.save()
+        
+        serializer = UserSerializer(user)
+        
+        print(serializer.data) 
 
-        return Response({'message': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Profile updated successfully.', 'user': serializer.data }, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

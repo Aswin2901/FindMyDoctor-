@@ -4,7 +4,7 @@ from .models import User , Notification
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'phone', 'gender', 'date_of_birth', 'state', 'address', 'password']
+        fields = ['full_name', 'email', 'phone', 'gender', 'date_of_birth', 'state', 'location', 'latitude', 'longitude', 'address', 'password']
         extra_kwargs = {
             'password': {'write_only': True},  
         }
