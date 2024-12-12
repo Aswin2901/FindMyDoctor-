@@ -186,7 +186,7 @@ const ProfilePage = () => {
         <>
             <div className="section-header">
                 <h2>Personal Information</h2>
-                <button className="edit-button" onClick={handleEditToggle}>
+                <button className="user-edit-button" onClick={handleEditToggle}>
                     {isEditing ? 'Save' : 'Edit'}
                 </button>
             </div>
@@ -364,7 +364,7 @@ const ProfilePage = () => {
                     </ul>
                 </div>
 
-                <div className="profile-details">
+                <div className="user-profile-details">
                     {loading ? (
                         <p>Loading...</p>
                     ) : activeSection === 'profile' ? (
