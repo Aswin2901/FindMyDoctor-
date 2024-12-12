@@ -152,7 +152,7 @@ function DoctorDashboard() {
                                     <h1>Welcome to Find My Doctor</h1>
                                     <p>We are committed to delivering exceptional care and making a difference in the lives of our patients. We’re excited to have you on board!</p>
                                 </div>
-                                <img src={doctorImage} alt="Doctor Profile" className="doctor-profile-image" />
+                                
                             </header>
 
                             <div className="dashboard-content">

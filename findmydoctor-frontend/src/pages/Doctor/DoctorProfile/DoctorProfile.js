@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./DoctorProfile.css";
+import ProfileIcon from '../../../Images/profile-icon.png';
 import { useAuth } from "../../../contexts/AuthContext";
 
 function DoctorProfile() {
@@ -61,7 +62,7 @@ function DoctorProfile() {
             <h2>Doctor Profile</h2>
             <div className="profile-picture-section">
                 <img 
-                    src={ `http://localhost:8000${doctor.profile_picture}` || "https://via.placeholder.com/150"} 
+                    src={ doctor.profile_picture ? `http://localhost:8000${doctor.profile_picture}` : ProfileIcon } 
                     alt="Profile" 
                     className="profile-picture" 
                 />

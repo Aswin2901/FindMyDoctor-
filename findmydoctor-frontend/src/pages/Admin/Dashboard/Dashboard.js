@@ -238,7 +238,7 @@ const Dashboard = () => {
                                     <div className="doctor-card" key={index}>
                                         <div className="doctor-info">
                                             <img
-                                                src={doctor.profile_picture || ProfileIcon}
+                                                src={ `http://localhost:8000${doctor.profile_picture}` || ProfileIcon}
                                                 alt={`${doctor.full_name}'s Profile`}
                                                 className="doctor-profile-picture"
                                             />
@@ -311,8 +311,8 @@ const Dashboard = () => {
                                         <tr key={doctor.id}>
                                             <td>
                                                 <img
-                                                    src={doctor.profile_picture || ProfileIcon}
-                                                    alt={`${doctor.full_name}'s Profile`}
+                                                    src={doctor.profile_picture ?  `http://localhost:8000${doctor.profile_picture}` : ProfileIcon}
+                                                    
                                                     className="table-profile-picture"
                                                 />
                                             </td>

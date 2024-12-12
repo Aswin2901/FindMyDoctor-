@@ -212,7 +212,7 @@ const VerificationForm = () => {
                         </label>
                         <div className="map-container">
                             <MapContainer
-                                center={[51.505, -0.09]} // Default map center
+                                center={[11.568161867727017, 76.03990184060308]} // Default map center
                                 zoom={13}
                                 style={{ height: '400px', width: '100%' }}
                             >
