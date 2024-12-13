@@ -8,6 +8,7 @@ import random
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -242,7 +243,7 @@ def user_favorite_doctors(request, user_id):
         
         # Check if the user has any favorite doctors
         if not favorite_doctors.exists():
-            return Response({"message": "No favorite doctors found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "No favorite doctors found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Manually build the response data
         response_data = []
@@ -261,13 +262,17 @@ def user_favorite_doctors(request, user_id):
             if hasattr(doctor, 'verification') and doctor.verification:
                 print(doctor.verification.clinic_address)
                 doctor_data.update({
+                    "id": doctor.verification.id,
                     "qualification": doctor.verification.qualification,
                     "specialty": doctor.verification.specialty,
                     "experience": doctor.verification.experience,
                     "hospital": doctor.verification.hospital,
                     "clinic": doctor.verification.clinic_address,
+                    'fav_id' : fav.id,
                 })
+                
                 print(doctor_data)
+                
 
             response_data.append(doctor_data)
 
@@ -276,8 +281,18 @@ def user_favorite_doctors(request, user_id):
     except Exception as e:
         # Handle any unexpected errors
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
+    
+@api_view(['DELETE'])
+def remove_favorite_doctor(request, fav_id):
+    try:
+        fav_doctor = MyDoctor.objects.get(id = fav_id)
+        fav_doctor.delete()
+        return Response({"message": "Doctor removed from favorites."}, status=status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        print("An error occurred:", e)
+        return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
 @api_view(['POST'])
 def create_notification(request):
     try:

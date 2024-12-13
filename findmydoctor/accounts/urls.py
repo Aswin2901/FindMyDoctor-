@@ -12,6 +12,7 @@ urlpatterns = [
     path('get_profile/<int:userId>/', views.get_user_profile, name='get_user_profile'),
     path('add-to-my-doctors/', views.add_to_my_doctors, name='add-to-my-doctors'),
     path('<int:user_id>/favorites/', views.user_favorite_doctors, name='user_favorite_doctors'),
+    path('remove_fav/<int:fav_id>/', views.remove_favorite_doctor , name='remove_fevorate'),
     path('create-notification/', views.create_notification, name='create_notification'),
     path('get-notification/<int:user_id>/', views.get_notifications, name='get_notifications'),
     path('mark-as-read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),

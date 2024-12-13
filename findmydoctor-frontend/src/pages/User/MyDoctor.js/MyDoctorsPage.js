@@ -18,9 +18,12 @@ const MyDoctorsPage = () => {
             try {
                 const response = await axios.get(`http://localhost:8000/accounts/${userId}/favorites`);
                 setFavoriteDoctors(response.data);
+                if (response.data.length == 0){
+                    setError('Dont have favorate doctor')
+                }
             } catch (error) {
                 console.error("Error fetching favorite doctors:", error);
-                setError("Failed to load favorite doctors.");
+                setError(error.response.data.error);
             }
         };
 
@@ -29,11 +32,12 @@ const MyDoctorsPage = () => {
         }
     }, [userId]);
 
-    const handleRemoveDoctor = async (doctorId) => {
+    const handleRemoveDoctor = async (FavId) => {
+        console.log('doctor id ::::' , FavId)
         if (window.confirm("Are you sure you want to remove this doctor from your favorites?")) {
             try {
-                await axios.delete(`http://localhost:8000/accounts/${userId}/favorites/${doctorId}`);
-                setFavoriteDoctors((prevDoctors) => prevDoctors.filter((doctor) => doctor.id !== doctorId));
+                await axios.delete(`http://localhost:8000/accounts/remove_fav/${FavId}/`);
+                setFavoriteDoctors([]);
             } catch (error) {
                 if(error.response && error.response.status === 404){
                     setError('')
@@ -81,8 +85,9 @@ const MyDoctorsPage = () => {
                             <td className="doctor-specialty">{doctor.specialty}</td>
                             <td className='doctor-phone'>{doctor.phone}</td>
                             <td className="doctor-hospital">{doctor.hospital}</td>
+                            {console.log('fav id :' , doctor.fav_id)}
                             <td>
-                                <button onClick={() => handleRemoveDoctor(doctor.id)} className="remove-button">
+                                <button onClick={() => handleRemoveDoctor(doctor.fav_id)} className="remove-button">
                                     Remove
                                 </button>
                             </td>
