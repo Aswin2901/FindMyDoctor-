@@ -138,7 +138,6 @@ function DoctorDashboard() {
                         >
                             Profile
                         </li>
-                        <li className="menu-item">Verification</li>
                         <li className="menu-item logout" onClick={handleLogout}>Logout</li>
                     </ul>
                 </aside>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./DoctorProfile.css";
 import ProfileIcon from '../../../Images/profile-icon.png';
+import VerifiedBadge from '../../../Images/Verified.png'
 import { useAuth } from "../../../contexts/AuthContext";
 
 function DoctorProfile() {
@@ -66,6 +67,13 @@ function DoctorProfile() {
                     alt="Profile" 
                     className="profile-picture" 
                 />
+                {doctor.is_verified && (
+                    <div className="verification-badge">
+                        <img src={VerifiedBadge} alt="Verified" className="badge-icon" />
+                        <span>You are verified by admin</span>
+                    </div>
+                )}
+
                 {editing && (
                     <div>
                         <label htmlFor="profile-picture-upload">Change Profile Picture</label>

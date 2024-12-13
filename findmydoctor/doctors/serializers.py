@@ -57,7 +57,7 @@ class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = ['id', 'full_name', 'email', 'phone', 'gender', 
-            'date_of_birth', 'state', 'address', 'profile_picture']
+            'date_of_birth', 'state', 'address', 'profile_picture' , 'is_verified']
         
 
 class VerificationSerializer(serializers.ModelSerializer):
