@@ -38,6 +38,21 @@ const Dashboard = () => {
     const currentDoctors = filteredDoctors.slice(indexOfFirstItem, indexOfLastItem);
     const currentUsers = usersList.slice(indexOfFirstItem, indexOfLastItem);
 
+    const [appointmentsFilter, setAppointmentsFilter] = useState(''); // Filter for appointments
+    const [currentAppointmentsPage, setCurrentAppointmentsPage] = useState(1); // Pagination for appointments
+    const [appointmentsPerPage] = useState(5);
+
+
+    const filteredAppointments = appointments.filter((appointment) => {
+        return appointmentsFilter === '' || appointment.status === appointmentsFilter;
+    });
+    
+    // Paginated Appointments
+    const indexOfLastAppointment = currentAppointmentsPage * appointmentsPerPage;
+    const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
+    const currentPaginatedAppointments = filteredAppointments.slice(indexOfFirstAppointment, indexOfLastAppointment);
+
+
     // Fetch recent doctors
     useEffect(() => {
         const fetchRecentDoctors = async () => {
@@ -253,30 +268,70 @@ const Dashboard = () => {
                     )}
 
                     {activeSection === 'appointments' && (
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Appointment ID</th>
-                                    <th>Doctor</th>
-                                    <th>User</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {appointments.map((appointment) => (
-                                    <tr key={appointment.id}>
-                                        <td>{appointment.id}</td>
-                                        <td>{appointment.doctor__full_name}</td>
-                                        <td>{appointment.patient__full_name}</td>
-                                        <td>{appointment.date}</td>
-                                        <td>{appointment.time}</td>
-                                        <td>{appointment.status}</td>
+                        <>
+                            {/* Filter Section */}
+                            <div className="admin-filter-section">
+                                <label htmlFor="appointmentsFilter">Filter by Status:</label>
+                                <select
+                                    id="appointmentsFilter"
+                                    value={appointmentsFilter}
+                                    onChange={(e) => setAppointmentsFilter(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="canceled">Canceled</option>
+                                </select>
+                            </div>
+
+                            {/* Appointments Table */}
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Appointment ID</th>
+                                        <th>Doctor</th>
+                                        <th>User</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {currentPaginatedAppointments.map((appointment) => (
+                                        <tr key={appointment.id}>
+                                            <td>{appointment.id}</td>
+                                            <td>{appointment.doctor__full_name}</td>
+                                            <td>{appointment.patient__full_name}</td>
+                                            <td>{appointment.date}</td>
+                                            <td>{appointment.time}</td>
+                                            <td>{appointment.status}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+
+                            {/* Pagination Controls */}
+                            <div className="pagination-controls">
+                                <button
+                                    className="pagination-btn"
+                                    disabled={currentAppointmentsPage === 1}
+                                    onClick={() => setCurrentAppointmentsPage((prev) => prev - 1)}
+                                >
+                                    Previous
+                                </button>
+                                <span>
+                                    Page {currentAppointmentsPage} of {Math.ceil(filteredAppointments.length / appointmentsPerPage)}
+                                </span>
+                                <button
+                                    className="pagination-btn"
+                                    disabled={currentAppointmentsPage === Math.ceil(filteredAppointments.length / appointmentsPerPage)}
+                                    onClick={() => setCurrentAppointmentsPage((prev) => prev + 1)}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </>
                     )}
 
                     {/* Doctors Section */}
