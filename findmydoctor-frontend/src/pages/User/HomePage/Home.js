@@ -79,7 +79,9 @@ const Home = () => {
       <div className="info-section">
         <div className="info-text">
           <h2>We connect you with the best <span>Doctors</span> for your health needs.</h2>
-          <button className="book-now-btn">Book Now</button>
+          <button className="book-now-btn" onClick={()=>{
+              navigate('/doctorlist')
+            }}>Book Now</button>
         </div>
         <div className="info-image">
           <img src={doctorpatient} alt="Doctor and Patient" />
