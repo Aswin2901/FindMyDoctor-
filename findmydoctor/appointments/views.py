@@ -85,23 +85,67 @@ def appointment_history(request, doctor_id):
 @api_view(['POST'])
 def cancel_appointment(request, appointment_id):
     try:
+        # Fetch the appointment
         appointment = Appointment.objects.get(id=appointment_id)
+
         if appointment.status == 'canceled':
             return Response({'message': 'Appointment is already canceled.'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+        # Update the appointment status
         appointment.status = 'canceled'
         appointment.save()
 
-        # Create a notification for the patient about the cancellation
+        # Create a notification for the patient
         Notification.objects.create(
-            user=appointment.patient,
-            doctor=appointment.doctor,
+            group_name=f"notifications_{appointment.patient.id}",
+            patient_message=f"Your appointment with Dr. {appointment.doctor.full_name} on {appointment.date} at {appointment.time} has been canceled.",
+            doctor_message=None,
             type="appointment cancellation",
+            is_read=False
+        )
+
+        # Create a notification for the doctor
+        Notification.objects.create(
+            group_name=f"notifications_{appointment.doctor.id}",
+            patient_message=None,
             doctor_message=f"Appointment with {appointment.patient.full_name} on {appointment.date} at {appointment.time} was canceled.",
-            message=f"Your appointment with Dr. {appointment.doctor.full_name} on {appointment.date} at {appointment.time} has been canceled."
+            type="appointment cancellation",
+            is_read=False
+        )
+
+        # Send real-time notifications
+        channel_layer = get_channel_layer()
+
+        # Notify patient
+        async_to_sync(channel_layer.group_send)(
+            f"notifications_{appointment.patient.id}",
+            {
+                "type": "send_notification",
+                "notification": {
+                    "group_name": f"notifications_{appointment.patient.id}",
+                    "patient_message": f"Your appointment with Dr. {appointment.doctor.full_name} on {appointment.date} at {appointment.time} has been canceled.",
+                    "type": "appointment cancellation",
+                    "is_read": False,
+                },
+            },
+        )
+
+        # Notify doctor
+        async_to_sync(channel_layer.group_send)(
+            f"notifications_{appointment.doctor.id}",
+            {
+                "type": "send_notification",
+                "notification": {
+                    "group_name": f"notifications_{appointment.doctor.id}",
+                    "doctor_message": f"Appointment with {appointment.patient.full_name} on {appointment.date} at {appointment.time} was canceled.",
+                    "type": "appointment cancellation",
+                    "is_read": False,
+                },
+            },
         )
 
         return Response({'message': 'Appointment canceled successfully.'}, status=status.HTTP_200_OK)
+
     except Appointment.DoesNotExist:
         return Response({'error': 'Appointment not found.'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
