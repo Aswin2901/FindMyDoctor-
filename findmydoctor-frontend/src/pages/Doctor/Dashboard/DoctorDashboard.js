@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { json, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './DoctorDashboard.css';
-import doctorImage from '../../../Images/doctor-1.jpg';
 import Footer from '../../../components/Footer/Footer';
 import DoctorNav from '../DoctorNav/DoctorNav';
-import DoctorNotificationPage from '../DoctorNotification/DoctorNotificationPage'
 import { useAuth } from '../../../contexts/AuthContext';
 import AppointmentManagement from '../AppointmentManagement/AppointmentManagement'; 
 import AppointmentHistory from '../AppointmentHistory/AppointmentHistory';

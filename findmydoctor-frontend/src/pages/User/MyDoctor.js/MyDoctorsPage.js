@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './MyDoctorsPage.css';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import defaultProfilePic from '../../../Images/profile-icon.png'
 import { useAuth } from '../../../contexts/AuthContext';
@@ -18,9 +17,6 @@ const MyDoctorsPage = () => {
             try {
                 const response = await axios.get(`http://localhost:8000/accounts/${userId}/favorites`);
                 setFavoriteDoctors(response.data);
-                if (response.data.length == 0){
-                    setError('Dont have favorate doctor')
-                }
             } catch (error) {
                 console.error("Error fetching favorite doctors:", error);
                 setError(error.response.data.error);
