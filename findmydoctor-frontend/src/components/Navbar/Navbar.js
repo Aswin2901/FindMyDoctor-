@@ -92,68 +92,64 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            <div className="navbar-logo">
+            <div className="navbar-logo" onClick={()=>{
+                navigate('/home')
+            }}>
                 <img src={logo} alt="Find My Doctor Logo" />
                 <span>
                     FIND <span className="highlight">MY</span> DOCTOR
                 </span>
             </div>
-            <ul className="navbar-links">
-                <li>
-                    <button onClick={() => navigate("/home")}>HOME</button>
-                </li>
-                <li>
-                    <button onClick={() => navigate("/service")}>SERVICE</button>
-                </li>
-            </ul>
-            {isAuthenticated && (
-                <div className="navbar-notification">
-                    <div className="notification-button" onClick={toggleDropdown}>
-                        <i className="fa fa-bell"></i>
-                        {unreadCount > 0 && (
-                            <span className="notification-badge">{unreadCount}</span>
+            <div className="navbar-links">            
+                {isAuthenticated && (
+                    <div className="navbar-notification">
+                        <div className="notification-button" onClick={toggleDropdown}>
+                            <i className="fa fa-bell"></i>
+                            {unreadCount > 0 && (
+                                <span className="notification-badge">{unreadCount}</span>
+                            )}
+                        </div>
+                        {isDropdownOpen && (
+                            <div className="notification-dropdown">
+                                {notifications.length > 0 ? (
+                                    notifications
+                                        .slice(0, 3)
+                                        .map((notif) => (
+                                            <div
+                                                key={notif.id}
+                                                className={`notification-item ${notif.is_read ? "read" : "unread"}`}
+                                            >
+                                                <p>
+                                                    <strong>{notif.type}</strong>
+                                                </p>
+                                                <p>{notif.patient_message}</p>
+                                            </div>
+                                        ))
+                                ) : (
+                                    <p className="no-notifications">No new notifications</p>
+                                )}
+                                <div className="view-all">
+                                    <button
+                                        onClick={() =>
+                                            navigate("/profile", { state: { section: "notification" } })
+                                        }
+                                    >
+                                        View All
+                                    </button>
+                                </div>
+                            </div>
                         )}
                     </div>
-                    {isDropdownOpen && (
-                        <div className="notification-dropdown">
-                            {notifications.length > 0 ? (
-                                notifications
-                                    .slice(0, 3)
-                                    .map((notif) => (
-                                        <div
-                                            key={notif.id}
-                                            className={`notification-item ${notif.is_read ? "read" : "unread"}`}
-                                        >
-                                            <p>
-                                                <strong>{notif.type}</strong>
-                                            </p>
-                                            <p>{notif.patient_message}</p>
-                                        </div>
-                                    ))
-                            ) : (
-                                <p className="no-notifications">No new notifications</p>
-                            )}
-                            <div className="view-all">
-                                <button
-                                    onClick={() =>
-                                        navigate("/profile", { state: { section: "notification" } })
-                                    }
-                                >
-                                    View All
-                                </button>
-                            </div>
-                        </div>
+                )}
+                <div className="navbar-user-icon">
+                    {isAuthenticated ? (
+                        <button onClick={() => navigate("/profile")}>
+                            <i className="fa fa-user"></i>
+                        </button>
+                    ) : (
+                        <button onClick={() => navigate("/")}>Login</button>
                     )}
                 </div>
-            )}
-            <div className="navbar-user-icon">
-                {isAuthenticated ? (
-                    <button onClick={() => navigate("/profile")}>
-                        <i className="fa fa-user"></i>
-                    </button>
-                ) : (
-                    <button onClick={() => navigate("/")}>Login</button>
-                )}
             </div>
 
             {alertBox.isVisible && (

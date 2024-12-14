@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faCalendarAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import SubNavbar from '../../../components/SubNavBar/SubNavbar';
 
 const Home = () => {
   const auth = useAuth()
@@ -48,6 +49,7 @@ const Home = () => {
   return (
     <div className="home-container">
       <Navbar />
+      <SubNavbar/>
 
       <div 
         className="hero-section"
