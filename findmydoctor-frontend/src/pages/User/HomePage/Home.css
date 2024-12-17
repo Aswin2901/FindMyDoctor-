@@ -48,68 +48,94 @@
   color: #ff5252;
 }
 
-/* Action Buttons */
-.action-buttons {
+.home-search-section {
   display: flex;
   justify-content: center;
-  gap: 20px; /* Reduced space between buttons */
-  margin-top: 30px;
-}
-
-.button {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 15px; /* Smaller padding */
-  border-radius: 10px; /* Reduced border radius */
-  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-  width: 100px;  /* Smaller width */
-  height: 100px; /* Smaller height */
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 600px;
+  margin: 20px auto;
+  border: 2px solid #ddd;
+  height: 45px;
 }
 
-.button p {
-  font-size: 0.7rem; 
+.select .home-location-select {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border: none;
+  background-color: #f0f4f8;
+  color: #333;
+  font-size: 1rem;
+  outline: none;
+  flex: 1;
+  width: 30%;
+  margin: 0px;
+  height: 100%;
+
+}
+
+.home-location-select i {
+  margin-right: 8px;
+  color: #007BFF;
+}
+
+.input .home-search-input {
+  border: none;
+  padding: 12px 15px;
+  flex: 3;
+  outline: none;
+  font-size: 1rem;
+  color: #333;
+  margin: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.home-search-input::placeholder {
+  color: #888;
+}
+
+.home-search-button {
+  background-color: #dc2809;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
   font-weight: bold;
-  margin-top: 5px; 
-  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.home-search-button:hover {
+  background-color: #f60606;
 }
 
-.icon {
-  font-size: 1.8rem; 
-  color: white;
+/* For Icons (Optional) */
+.hero-content i {
+  font-size: 1.1rem;
+  margin-right: 5px;
 }
 
-/* Different Styles for Each Button */
-.search-button {
-  background-color: #ff5252; /* Red */
-}
+/* Responsiveness */
+@media (max-width: 768px) {
+  .hero-content .search-section {
+    flex-direction: column;
+    border-radius: 20px;
+  }
 
-.search-button:hover {
-  background-color: #e53935;
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
+  .hero-content .home-location-select,
+  .hero-content .home-search-input,
+  .hero-content .home-search-button {
+    width: 100%;
+    border-radius: 0;
+  }
 
-.appointment-button {
-  background-color: #42a5f5; /* Blue */
-}
-
-.appointment-button:hover {
-  background-color: #1e88e5;
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.profile-button {
-  background-color: #66bb6a; /* Green */
-}
-
-.profile-button:hover {
-  background-color: #43a047;
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  .hero-content .home-search-button {
+    border-radius: 0 0 20px 20px;
+  }
 }
 
 /* Info Section */
