@@ -7,6 +7,7 @@ import defaultProfileIcon from '../../../Images/profile-icon.png';
 import './DoctorList.css';
 import { useAuth } from '../../../contexts/AuthContext';
 import { containerClasses } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 const DoctorList = () => {
   const auth = useAuth();
@@ -26,8 +27,29 @@ const DoctorList = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [doctorQualifications, setDoctorQualifications] = useState([]);
   const [doctorSpecialty , setDoctorSpeciality] = useState([])
+  const location = useLocation();
+  const { location: searchLocation, keyword, results } = location.state || {};
+
+
 
   useEffect(() => {
+    if (results) {
+      console.log('result :' , results)
+      setDoctors(results);
+      setFilteredDoctors(results)
+      const uniqueQualifications = new Set(results.map(doctor => doctor.qualification)); 
+      setDoctorQualifications(Array.from(uniqueQualifications));
+
+      const uniqueSpeciality = new Set(results.map(doctor => doctor.specialty)); 
+      setDoctorSpeciality(Array.from(uniqueSpeciality));
+
+      const uniqueLocations = [...new Set(results.map((doctor) => doctor.location))];
+      setLocations(uniqueLocations);
+      setLoading(false);
+    }else{
+
+    
+
     const fetchDoctors = async () => {
       try {
         const response = await axios.get('http://localhost:8000/doctors/getdoctors/');
@@ -49,6 +71,7 @@ const DoctorList = () => {
       }
     };
     fetchDoctors();
+  }
   }, []);
 
   useEffect(() => {
