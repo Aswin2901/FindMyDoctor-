@@ -6,6 +6,7 @@ import Footer from '../../../components/Footer/Footer';
 import doctor1 from '../../../Images/pixelcut-export.png';
 import doctor2 from '../../../Images/doctor-herp.jpg';
 import doctor3 from '../../../Images/doc-3.jpeg';
+import doctorpatient from '../../../Images/service doctor -1.jpg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import SubNavbar from '../../../components/SubNavBar/SubNavbar';
@@ -190,6 +191,18 @@ const Home = () => {
               Search
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="info-section">
+        <div className="info-text">
+          <h2>We connect you with the best <span>Doctors</span> for your health needs.</h2>
+          <button className="book-now-btn" onClick={()=>{
+              navigate('/doctorlist')
+            }}>Book Now</button>
+        </div>
+        <div className="info-image">
+          <img src={doctorpatient} alt="Doctor and Patient" />
         </div>
       </div>
 

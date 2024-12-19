@@ -15,6 +15,7 @@ function AppointmentHistory({ doctorId }) {
             setLoading(true);
             try {
                 const response = await axios.get(`http://127.0.0.1:8000/appointments/history/${doctorId}/`);
+                console.log('response :' , response.data)
                 setAppointments(response.data);
             } catch (error) {
                 console.error('Error fetching appointment history:', error);
@@ -100,10 +101,18 @@ function AppointmentHistory({ doctorId }) {
                                 <p><strong>Date:</strong> {appointment.date}</p>
                             </div>
                             <div className="appointment-row">
+                                <p><strong>Patient Number:</strong> {appointment.patient_phone}</p>
+                                <p><strong>Patient Gender:</strong> {appointment.patient_gender}</p>
+                            </div>
+                            
+                            <div className="appointment-row">
                                 <p><strong>Time:</strong> {appointment.time}</p>
                                 <p style={appointment.status === 'canceled' ? { color: "red" } : { color: 'green' }}>
                                     <strong>Status:</strong> {appointment.status}
                                 </p>
+                            </div>
+                            <div className="appointment-row">
+                                <p><strong>Reason For visit:</strong> {appointment.reason_for_visit}</p>
                             </div>
                             <div className="button-row">
                                 {appointment.status !== 'canceled' && (
