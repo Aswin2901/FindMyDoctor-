@@ -49,7 +49,7 @@ const DoctorList = () => {
       const uniqueSpeciality = new Set(results.map(doctor => doctor.specialty)); 
       setDoctorSpeciality(Array.from(uniqueSpeciality));
 
-      const uniqueLocations = [...new Set(results.data.map((doctor) => {
+      const uniqueLocations = [...new Set(results.map((doctor) => {
         const locationParts = doctor.clinic_address.split(',');
         return locationParts[0].trim(); // Take the first part and remove any extra spaces
       }))];
@@ -87,24 +87,41 @@ const DoctorList = () => {
   }, []);
 
   useEffect(() => {
-    let results = doctors.filter((doctor) =>
-      doctor.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doctor.qualification.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      doctor.clinic_address.toLowerCase().includes(locationFilter.toLowerCase()) &&
-      (qualificationFilter ? doctor.qualification === qualificationFilter : true) &&
-      (specialtyFilter ? doctor.specialty === specialtyFilter : true) &&
-      (genderFilter ? doctor.gender === genderFilter : true)
-    );
-
-    if (sortOption === 'experienceDesc') {
-      results = results.sort((a, b) => b.experience - a.experience); // Higher experience first
-    } else if (sortOption === 'experienceAsc') {
-      results = results.sort((a, b) => a.experience - b.experience); // Lower experience first
+    let results = doctors;
+  
+    // Apply location filter
+    if (locationFilter) {
+      if (locationFilter === 'nearest') {
+        // Nearest doctors logic is handled in `findNearestDoctors`
+        results = doctors; // Use the nearest doctors already set in `doctors`
+      } else {
+        results = doctors.filter((doctor) =>
+          doctor.clinic_address.toLowerCase().includes(locationFilter.toLowerCase())
+        );
+      }
     }
-
+  
+    // Apply other filters
+    results = results.filter((doctor) =>
+      (!qualificationFilter || doctor.qualification === qualificationFilter) &&
+      (!specialtyFilter || doctor.specialty === specialtyFilter) &&
+      (!genderFilter || doctor.gender === genderFilter) &&
+      (doctor.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        doctor.qualification.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  
+    // Apply sorting
+    if (sortOption === 'experienceDesc') {
+      results.sort((a, b) => b.experience - a.experience);
+    } else if (sortOption === 'experienceAsc') {
+      results.sort((a, b) => a.experience - b.experience);
+    }
+  
     setFilteredDoctors(results);
-  }, [searchTerm, locationFilter, qualificationFilter, specialtyFilter, doctors , genderFilter , sortOption]);
+
+    
+  }, [searchTerm, locationFilter, qualificationFilter, specialtyFilter, doctors, genderFilter, sortOption]);
 
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
@@ -125,6 +142,7 @@ const DoctorList = () => {
             });
             console.log(response.data , 'response')
             setFilteredDoctors(response.data);
+            setDoctors(response.data)
           } catch (error) {
             console.error('Error fetching nearest doctors:', error);
             setErrorMessage('Failed to fetch nearest doctors. Please try again later.');
