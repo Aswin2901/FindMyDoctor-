@@ -22,6 +22,7 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .utils import generate_time_slots, is_time_in_range
+from operator import itemgetter
 
 
 
@@ -390,6 +391,7 @@ def get_nearest_doctors(request):
                 doctor_data['distance'] = round(distance, 2)
                 nearest_doctors.append(doctor_data)
                 print('hiiiiii')
+    nearest_doctors = sorted(nearest_doctors, key=lambda doctor: doctor['distance'])
     
     print(nearest_doctors)
 

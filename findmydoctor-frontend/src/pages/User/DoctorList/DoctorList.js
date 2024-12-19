@@ -4,6 +4,9 @@ import AppointmentModal from '../Appointment/AppointmentModal';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/Footer/Footer';
 import defaultProfileIcon from '../../../Images/profile-icon.png';
+import VerifiedBadge from '../../../Images/Verified.png'
+import DoctorIcon from '../../../Images/doctor-icon.jpg'
+import FilterIcon from '../../../Images/filter.svg'
 import './DoctorList.css';
 import { useAuth } from '../../../contexts/AuthContext';
 import { containerClasses } from '@mui/material';
@@ -20,6 +23,7 @@ const DoctorList = () => {
   const [locationFilter, setLocationFilter] = useState('');
   const [qualificationFilter, setQualificationFilter] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
   const [appointmentDoctorId, setAppointmentDoctorId] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -29,6 +33,8 @@ const DoctorList = () => {
   const [doctorSpecialty , setDoctorSpeciality] = useState([])
   const location = useLocation();
   const { location: searchLocation, keyword, results } = location.state || {};
+  const [loc , setLoc] = useState('')
+  const [sortOption, setSortOption] = useState('');
 
 
 
@@ -43,7 +49,10 @@ const DoctorList = () => {
       const uniqueSpeciality = new Set(results.map(doctor => doctor.specialty)); 
       setDoctorSpeciality(Array.from(uniqueSpeciality));
 
-      const uniqueLocations = [...new Set(results.map((doctor) => doctor.location))];
+      const uniqueLocations = [...new Set(results.data.map((doctor) => {
+        const locationParts = doctor.clinic_address.split(',');
+        return locationParts[0].trim(); // Take the first part and remove any extra spaces
+      }))];
       setLocations(uniqueLocations);
       setLoading(false);
     }else{
@@ -61,7 +70,10 @@ const DoctorList = () => {
         const uniqueSpeciality = new Set(response.data.map(doctor => doctor.specialty)); 
         setDoctorSpeciality(Array.from(uniqueSpeciality));
 
-        const uniqueLocations = [...new Set(response.data.map((doctor) => doctor.location))];
+        const uniqueLocations = [...new Set(response.data.map((doctor) => {
+          const locationParts = doctor.clinic_address.split(',');
+          return locationParts[0].trim(); // Take the first part and remove any extra spaces
+        }))];
         setLocations(uniqueLocations);
       } catch (error) {
         console.error('Error fetching doctors:', error);
@@ -75,14 +87,24 @@ const DoctorList = () => {
   }, []);
 
   useEffect(() => {
-    const results = doctors.filter((doctor) =>
-      doctor.full_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (locationFilter ? doctor.location === locationFilter : true) &&
+    let results = doctors.filter((doctor) =>
+      doctor.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doctor.qualification.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      doctor.clinic_address.toLowerCase().includes(locationFilter.toLowerCase()) &&
       (qualificationFilter ? doctor.qualification === qualificationFilter : true) &&
-      (specialtyFilter ? doctor.specialty === specialtyFilter : true)
+      (specialtyFilter ? doctor.specialty === specialtyFilter : true) &&
+      (genderFilter ? doctor.gender === genderFilter : true)
     );
+
+    if (sortOption === 'experienceDesc') {
+      results = results.sort((a, b) => b.experience - a.experience); // Higher experience first
+    } else if (sortOption === 'experienceAsc') {
+      results = results.sort((a, b) => a.experience - b.experience); // Lower experience first
+    }
+
     setFilteredDoctors(results);
-  }, [searchTerm, locationFilter, qualificationFilter, specialtyFilter, doctors]);
+  }, [searchTerm, locationFilter, qualificationFilter, specialtyFilter, doctors , genderFilter , sortOption]);
 
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
@@ -101,6 +123,7 @@ const DoctorList = () => {
             const response = await axios.get('http://localhost:8000/doctors/nearest/', {
               params: { latitude, longitude },
             });
+            console.log(response.data , 'response')
             setFilteredDoctors(response.data);
           } catch (error) {
             console.error('Error fetching nearest doctors:', error);
@@ -132,75 +155,134 @@ const DoctorList = () => {
     }
   };
 
+  const handleUseCurrentLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ latitude, longitude });
+        setLoc('Current Location');
+        
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        setErrorMessage('Location access denied. Please enable location to find nearest doctors.');
+      }
+    );
+  };
+
   if (loading) return <p>Loading doctors...</p>;
 
   return (
     <div>
       <Navbar />
-      <div className="doctor-list-container">
-        <div className="filter-section">
-          <h3>Filter by</h3>
-          <div className="filter-group">
-            <label>Location</label>
-            <select
-              onChange={(e) => {
-                const value = e.target.value;
-                setLocationFilter(value);
-                if (value === 'nearest') {
-                  findNearestDoctors();
-                }
-              }}
-              value={locationFilter}
-            >
-              <option value="">All</option>
-              <option value="nearest">Nearest</option>
-              {locations.map((location, index) => (
-                <option key={index} value={location}>
-                  {location}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className='search-section'>
 
-          <div className="filter-group">
-            <label>Qualification</label>
-            <select 
-              onChange={(e) => setQualificationFilter(e.target.value)} 
-              value={qualificationFilter}
-            >
-              <option value="">All</option>
-              {doctorQualifications.map((qualification) => ( 
-                <option key={qualification} value={qualification}>{qualification}</option> 
-              ))} 
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Specialty</label>
-            <select 
-              onChange={(e) => setSpecialtyFilter(e.target.value)} 
-              value={specialtyFilter}
-            >
-              <option value="">All</option>
-              {doctorSpecialty.map((specialty) => ( 
-                <option key={specialty} value={specialty}>{specialty}</option> 
-              ))} 
-            </select>
-          </div>
+        <div className="verification-badge-list">
+            <img src={VerifiedBadge} alt="Verified" className="badge-icon" />
+            <span>All Doctors verified by admin</span>
         </div>
+
+     
+        <div className="search-bar">
+              <input
+                type="text"
+                placeholder="Search by name, specialty, or qualification"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="search-input"
+              />
+        </div>
+
+        <div className="verification-doctor-list">
+          <img src={DoctorIcon} alt='doctor icon' className='doctor-icon'/>
+
+        </div>
+      </div>
+
+      
+      
+      <div className="doctor-list-container">
 
         <div className="doctor-list">
           <h2>Your Doctors</h2>
 
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search by name, specialty, or qualification"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="search-input"
-            />
+          <div className="filter-section">
+            <div className='filter-icon'>
+            <svg className='icon' viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 12l8-8V0H0v4l8 8v8l4-4v-4z"/>
+              </svg>
+              <h4>Filter Here</h4>
+              
+            </div>
+            
+          
+            <div className="filter-group">
+              <select
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setLocationFilter(value);
+                  if (value === 'nearest') {
+                    findNearestDoctors();
+                  }
+                }}
+                value={locationFilter}
+              >
+                <option value="">Location</option>
+                <option value="nearest">Nearest</option>
+                {locations.map((location, index) => (
+                  <option key={index} value={location}>
+                    {location}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <select 
+                onChange={(e) => setQualificationFilter(e.target.value)} 
+                value={qualificationFilter}
+              >
+                <option value="">Qualification</option>
+                {doctorQualifications.map((qualification) => ( 
+                  <option key={qualification} value={qualification}>{qualification}</option> 
+                ))} 
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <select 
+                onChange={(e) => setSpecialtyFilter(e.target.value)} 
+                value={specialtyFilter}
+              >
+                <option value="">Specialty</option>
+                {doctorSpecialty.map((specialty) => ( 
+                  <option key={specialty} value={specialty}>{specialty}</option> 
+                ))} 
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <select 
+                onChange={(e) => setGenderFilter(e.target.value)} 
+                value={genderFilter}
+              >
+                <option value="">Gender</option>
+                
+                <option key="Male" value='Male'>Male</option> 
+                <option key="Male" value='Female'>Female</option> 
+                
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <select onChange={(e) => setSortOption(e.target.value)} value={sortOption}>
+                <option value="">Sort By</option>
+                <option value="experienceDesc">Experience: High to Low</option>
+                <option value="experienceAsc">Experience: Low to High</option>
+              </select>
+            </div>
           </div>
+
 
           {successMessage && <p className="success-message">{successMessage}</p>}
           {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -209,14 +291,14 @@ const DoctorList = () => {
             {filteredDoctors.map((doctor, index) => (
               <div key={index} className="doctor-card">
                 <div className="doctor-header" onClick={() => toggleExpandCard(index)}>
-                  <div className="doctor-info">
+                  <div className="doctor-info-list">
                     <p style={{color:'rebeccapurple', fontSize: 'large'}}>{doctor.distance ? `KM : ${doctor.distance}` : '' }</p>
                     <img
                       src={ doctor.profile_picture ? `http://localhost:8000${doctor.profile_picture}` : defaultProfileIcon}
                       alt={doctor.full_name}
                       className="doctor-image"
                     />
-                    <h3>{doctor.full_name}</h3>
+                    <h3>Dr. {doctor.full_name}</h3>
                     <p>Qualification: {doctor.qualification}</p>
                     <p>Specialty: {doctor.specialty}</p>
                   </div>
@@ -226,29 +308,37 @@ const DoctorList = () => {
                 </div>
 
                 {expandedCards[index] && (
-                  <div className="doctor-details">
-                    <p>Email: {doctor.email}</p>
-                    <p>Phone: {doctor.phone}</p>
-                    <p>Gender: {doctor.gender}</p>
-                    <p>Experience: {doctor.experience} years</p>
-                    <p>Hospital: {doctor.hospital}</p>
-                    <p>Clinic Address: {doctor.clinic_address || 'N/A'}</p>
-                    <p>Location: {doctor.location}</p>
+                  <div className='section-doctor-details'>
+                    <div className="doctor-details">
+                      <div className='doctor-details-in'>
+                        <p>Email: {doctor.email}</p>
+                        <p>Phone: {doctor.phone}</p>
+                        <p>Gender: {doctor.gender}</p>
+                      </div>
+
+                      <div className='doctor-details-in'>
+                        <p>Experience: {doctor.experience} years</p>
+                        <p>Hospital: {doctor.hospital}</p>
+                        <p>Clinic Address: {doctor.clinic_address || 'N/A'}</p>
+                      </div>
+    
+                      
+                    </div>
                     <div className="doctor-actions">
-                      <button
-                        className="appointment-btn"
-                        onClick={() => setAppointmentDoctorId(doctor.id)}
-                      >
-                        Take Appointment
-                      </button>
-                      <button
-                        className="add-doctor-btn"
-                        onClick={() => addToMyDoctors(doctor.id)}
-                      >
-                        Add to My Doctors
-                      </button>
-                    </div>
-                    </div>
+                    <button
+                      className="appointment-btn"
+                      onClick={() => setAppointmentDoctorId(doctor.id)}
+                    >
+                      Take Appointment
+                    </button>
+                    <button
+                      className="add-doctor-btn"
+                      onClick={() => addToMyDoctors(doctor.id)}
+                    >
+                      Add to My Doctors
+                    </button>
+                  </div>
+                </div>
                 )}
               </div>
             ))}

@@ -31,7 +31,6 @@ const Home = () => {
 
         // Extract unique locations
         const uniqueLocations = [...new Set(response.data.map((doctor) => {
-          // Split the address and take the first part
           const locationParts = doctor.clinic_address.split(',');
           return locationParts[0].trim(); // Take the first part and remove any extra spaces
         }))];

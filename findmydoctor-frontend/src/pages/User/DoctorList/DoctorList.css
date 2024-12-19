@@ -15,6 +15,7 @@ body {
 
 /* Doctor List */
 .doctor-list {
+  background-color: #dee6ef;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -28,14 +29,45 @@ body {
 }
 
 /* Search Bar */
+.verification-badge-list{
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: flex-start;
+}
+
+.verification-badge-list img{
+  width: 50px;
+  margin-left: 20%;
+}
+.verification-doctor-list img{
+  width: 90px; 
+}
+
+
+.verification-badge-list span{
+  color: #000;
+}
+
+.search-section{
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-around;
+}
+
 .search-bar {
-  margin-bottom: 20px;
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+  margin-top: 10px;
+  margin-bottom: 10px;
   text-align: center;
+  justify-content: center;
 }
 
 .search-input {
-  width: 100%;
-  max-width: 400px;
+  width: 70%;
   padding: 12px;
   border-radius: 4px;
   border: 1px solid #ddd;
@@ -60,6 +92,7 @@ body {
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
+  margin-top: 5px;
 }
 
 .doctor-card:hover {
@@ -76,12 +109,17 @@ body {
   padding: 15px;
 }
 
-.doctor-info {
+.doctor-info-list {
   display: flex;
   align-items: center;
-  flex: 1;
+  width: 100%;
+  justify-content: space-around;
 }
 
+.doctor-info-list p{
+  color: #000000;
+  font-size: medium;
+}
 .doctor-image {
   width: 80px;
   height: 80px;
@@ -102,7 +140,7 @@ body {
 
 .doctor-basic-info p {
   font-size: 0.9em;
-  color: #777;
+  color: #000000;
   margin: 3px 0;
 }
 
@@ -121,12 +159,28 @@ body {
 }
 
 /* Doctor Details */
+.section-doctor-details{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
 .doctor-details {
   width: 95%;
   padding: 15px;
   background-color: #f8f9fa;
   border-top: 1px solid #ddd;
   text-align: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  
+}
+.doctor-details-in{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .doctor-details p {
@@ -183,47 +237,67 @@ body {
 }
 
 /* Filter Section */
+.filter-icon{
+  display: flex;
+  flex-direction: row;
+}
+
+.filter-icon .icon {
+  margin-right: 5px;
+  fill: rgb(0, 0, 0); /* Changes the SVG color */
+  stroke: white;
+  width: 24px; /* Adjust size */
+  height: 24px;
+}
+
 .filter-section {
-  height: 100%;
-  flex: 0 0 250px; 
-  flex-direction: column;
-  background-color: #ffffff;
-  padding: 20px;
+  background-color: #002366;
+  color: white;
+  padding: 2px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #ddd; /* Border for box effect */
   text-align: left;
   position: sticky; /* Sticks to the top when scrolling */
-  top: 20px; /* Distance from the top when sticky */
+  margin-left: 20px ;
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  justify-content: space-around;
+  
 }
 
 /* Filter Section Header */
 .filter-section h3 {
-  margin-bottom: 20px;
+  margin-left: 50px;
   font-size: 1.2em;
-  color: #333;
+  color: white;
+  text-decoration: none;
   font-weight: bold;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
+  justify-content: flex-start;
+  
+  
 }
 
 /* Filter Groups - Inside Box */
 .filter-group {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 1px;
+  justify-content: center;
 }
 
 .filter-group label {
   font-size: 0.95em;
-  color: #555;
+  color: white;
   font-weight: bold;
 }
 
 .filter-group select {
   width: 100%;
-  padding: 10px;
+  height: 10%;
   border-radius: 4px;
   border: 1px solid #ddd;
   font-size: 0.9em;
