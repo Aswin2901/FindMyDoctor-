@@ -3,6 +3,8 @@ from .models import Doctor , Verification , AppointmentAvailability , Leave , Br
 from django.contrib.auth.hashers import make_password , check_password
 from rest_framework import serializers
 from accounts.models import Notification
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 
 
 class DoctorSignupSerializer(serializers.ModelSerializer):
@@ -56,8 +58,18 @@ class DoctorLoginSerializer(serializers.Serializer):
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ['id', 'full_name', 'email', 'phone', 'gender', 
-            'date_of_birth', 'state', 'address', 'profile_picture' , 'is_verified']
+        fields = [
+            'id', 'full_name', 'email', 'phone', 'gender', 
+            'date_of_birth', 'state', 'address', 'profile_picture', 'is_verified'
+        ]
+
+    def update(self, instance, validated_data):
+        # Remove `profile_picture` if it's not a valid file
+        profile_picture = validated_data.get('profile_picture', None)
+        if profile_picture and not isinstance(profile_picture, InMemoryUploadedFile):
+            validated_data.pop('profile_picture', None)
+        
+        return super().update(instance, validated_data)
         
 
 class VerificationSerializer(serializers.ModelSerializer):

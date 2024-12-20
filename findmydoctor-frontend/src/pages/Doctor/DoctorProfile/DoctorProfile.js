@@ -34,17 +34,23 @@ function DoctorProfile() {
     };
 
     const handleFileChange = (e) => {
+        console.log('eeeeeeee' , e.target.files[0])
         setNewProfilePicture(e.target.files[0]);
     };
 
     const saveChanges = async () => {
         const formData = new FormData();
         Object.keys(doctor).forEach((key) => {
-            formData.append(key, doctor[key]);
+            if (key !== "profile_picture") { // Skip adding the existing profile_picture
+                formData.append(key, doctor[key]);
+            }
         });
+    
+        // Append only if a new file is selected
         if (newProfilePicture) {
             formData.append("profile_picture", newProfilePicture);
         }
+    
         try {
             const response = await axios.put(
                 `http://127.0.0.1:8000/doctors/profile/${doctorId}/`,
@@ -53,6 +59,7 @@ function DoctorProfile() {
             );
             setDoctor(response.data);
             setEditing(false);
+            setNewProfilePicture(null); // Reset the state for the profile picture
         } catch (error) {
             console.error("Error updating doctor profile:", error);
         }
@@ -62,6 +69,7 @@ function DoctorProfile() {
         <div className="doctor-profile">
             <h2>Doctor Profile</h2>
             <div className="profile-picture-section">
+
                 <img 
                     src={ doctor.profile_picture ? `http://localhost:8000${doctor.profile_picture}` : ProfileIcon } 
                     alt="Profile" 
