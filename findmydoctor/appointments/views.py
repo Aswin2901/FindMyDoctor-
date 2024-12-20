@@ -4,12 +4,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from accounts.models import  User
 from doctors.models import Doctor
-from django.utils.timezone import now
+from django.utils.timezone import now , make_aware
 from .models import Appointment , Notification
 from .serializers import AppointmentSerializer
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.http import JsonResponse
+from datetime import datetime
+
 
 @api_view(['POST'])
 def create_appointment(request):
@@ -233,8 +235,17 @@ def get_all_appointment(request, user_id):
     
     
     all_appointments = Appointment.objects.filter(
-        patient=user, 
+        patient=user 
     )
+    
+    for appointment in all_appointments:
+        appointment_datetime = datetime.combine(appointment.date, appointment.time)
+        # Convert it to timezone-aware
+        appointment_datetime = make_aware(appointment_datetime)
+
+        if appointment.status not in ['completed', 'canceled'] and appointment_datetime < current_time:
+            appointment.status = 'completed'
+            appointment.save()
 
     # Manually serialize data
     def format_appointment(appointment):

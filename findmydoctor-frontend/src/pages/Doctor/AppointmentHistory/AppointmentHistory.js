@@ -115,7 +115,7 @@ function AppointmentHistory({ doctorId }) {
                                 <p><strong>Reason For visit:</strong> {appointment.reason_for_visit}</p>
                             </div>
                             <div className="button-row">
-                                {appointment.status !== 'canceled' && (
+                                {appointment.status === 'Confirmed' && (
                                     <button
                                         className="cancel-button"
                                         onClick={() => handleCancelAppointment(appointment.id)}

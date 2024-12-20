@@ -100,7 +100,7 @@ const AppointmentList = () => {
                         <option value="All">All</option>
                         <option value="Confirmed">Confirmed</option>
                         <option value="canceled">Cancelled</option>
-                        <option value="Pending">Pending</option>
+                        <option value="completed">Completed</option>
                     </select>
 
                     <input
@@ -133,7 +133,7 @@ const AppointmentList = () => {
                                         <td>{app.date}</td>
                                         <td>{app.time}</td>
                                         <td>{app.reason_for_visit}</td>
-                                        <td>{app.status}</td>
+                                        <td style={app.status === 'canceled' ? { color: 'red' } : null}>{app.status}</td>
                                         <td>
                                             {app.status === "Confirmed" ? (
                                                 <button
