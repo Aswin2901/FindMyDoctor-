@@ -140,6 +140,7 @@ const Dashboard = () => {
             setErrorMessage('');
         } catch (error) {
             if (error.response && error.response.status === 404) {
+                console.log('The doctor has not submitted the documents yet')
                 setErrorMessage('The doctor has not submitted the documents yet.');
             } else {
                 console.error('Error fetching doctor verification details:', error);
@@ -337,6 +338,7 @@ const Dashboard = () => {
                     {/* Doctors Section */}
                     {activeSection === 'doctors' && !selectedDoctor && (
                         <>
+                            {errorMessage && <p className="error-message">{errorMessage}</p>}
                             <div className="admin-filter-section">
                                 <label htmlFor="statusFilter">Filter by Status:</label>
                                 <select

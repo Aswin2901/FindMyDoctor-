@@ -91,10 +91,11 @@ const DoctorList = () => {
   
     // Apply location filter
     if (locationFilter) {
+ 
       if (locationFilter === 'nearest') {
-        // Nearest doctors logic is handled in `findNearestDoctors`
-        results = doctors; // Use the nearest doctors already set in `doctors`
-      } else {
+        findNearestDoctors()
+        
+      }else{
         results = doctors.filter((doctor) =>
           doctor.clinic_address.toLowerCase().includes(locationFilter.toLowerCase())
         );
@@ -239,9 +240,6 @@ const DoctorList = () => {
                 onChange={(e) => {
                   const value = e.target.value;
                   setLocationFilter(value);
-                  if (value === 'nearest') {
-                    findNearestDoctors();
-                  }
                 }}
                 value={locationFilter}
               >
@@ -337,7 +335,10 @@ const DoctorList = () => {
                       <div className='doctor-details-in'>
                         <p>Experience: {doctor.experience} years</p>
                         <p>Hospital: {doctor.hospital}</p>
-                        <p>Clinic Address: {doctor.clinic_address || 'N/A'}</p>
+                        <div style={{marginTop:'5px' , border: '0.05px solid black', padding: '6px'}}>
+                          <h5>Clinic Address</h5>
+                          <p style={{width:'300px'}}> {doctor.clinic_address || 'N/A'}</p>
+                        </div>
                       </div>
     
                       
