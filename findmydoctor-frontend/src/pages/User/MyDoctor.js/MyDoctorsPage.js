@@ -29,24 +29,29 @@ const MyDoctorsPage = () => {
     }, [userId]);
 
     const handleRemoveDoctor = async (FavId) => {
-        console.log('doctor id ::::' , FavId)
+        console.log('doctor id ::::', FavId);
         if (window.confirm("Are you sure you want to remove this doctor from your favorites?")) {
             try {
-                await axios.delete(`http://localhost:8000/accounts/remove_fav/${FavId}/`);
-                setFavoriteDoctors([]);
-            } catch (error) {
-                if(error.response && error.response.status === 404){
-                    setError('')
+                const response = await axios.delete(`http://localhost:8000/accounts/remove_fav/${FavId}/`);
+                console.log('response:', response.data);
+    
+                if(response.data.data){
+                    setFavoriteDoctors(response.data.data);
+
                 }else{
-                    console.error("Error removing doctor:", error);
-                    
-                    setError("Failed to remove doctor.");
+                    setFavoriteDoctors([])
                 }
                 
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    setError('Doctor not found.');
+                } else {
+                    console.error("Error removing doctor:", error);
+                    setError("Failed to remove doctor.");
+                }
             }
         }
     };
-
     const handleAddDoctor = () => {
         navigate('/doctorlist');
     };

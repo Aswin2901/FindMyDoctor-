@@ -285,13 +285,45 @@ def user_favorite_doctors(request, user_id):
 @api_view(['DELETE'])
 def remove_favorite_doctor(request, fav_id):
     try:
-        fav_doctor = MyDoctor.objects.get(id = fav_id)
+        fav_doctor = MyDoctor.objects.get(id=fav_id)
+        user = fav_doctor.user
         fav_doctor.delete()
-        return Response({"message": "Doctor removed from favorites."}, status=status.HTTP_204_NO_CONTENT)
+
+        all_doctor = MyDoctor.objects.filter(user_id=user.id).select_related('doctor__verification')
+        if not all_doctor.exists():
+            return Response({"message": "No favorite doctors found."}, status=status.HTTP_204_NO_CONTENT)
+
+        # Manually build the response data
+        response_data = []
+        for fav in all_doctor:
+            doctor = fav.doctor
+            doctor_data = {
+                "full_name": doctor.full_name,
+                "email": doctor.email,
+                "phone": doctor.phone,
+                "gender": doctor.gender,
+                "created_at": doctor.created_at,
+            }
+
+            # Add verification fields if they exist
+            if hasattr(doctor, 'verification') and doctor.verification:
+                doctor_data.update({
+                    "id": doctor.verification.id,
+                    "qualification": doctor.verification.qualification,
+                    "specialty": doctor.verification.specialty,
+                    "experience": doctor.verification.experience,
+                    "hospital": doctor.verification.hospital,
+                    "clinic": doctor.verification.clinic_address,
+                    'fav_id': fav.id,
+                })
+
+            response_data.append(doctor_data)
+
+        return Response({"message": "Doctor removed from favorites.", 'data': response_data}, status=status.HTTP_200_OK)
+
     except Exception as e:
         print("An error occurred:", e)
-        return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+        return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
     
 @api_view(['POST'])
 def create_notification(request):
