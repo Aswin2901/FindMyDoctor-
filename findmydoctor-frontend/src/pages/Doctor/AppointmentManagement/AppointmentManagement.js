@@ -124,6 +124,7 @@ function AppointmentManagement() {
                                 ? 'leave-date'
                                 : ''
                         }
+                        tileDisabled={({ date }) => date < new Date().setHours(0, 0, 0, 0)}
                     />
                 </div>
 
