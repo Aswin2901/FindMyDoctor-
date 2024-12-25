@@ -45,6 +45,7 @@ function ChatArea({ userType }) {
           {
             text: data.message,
             sender: data.sender,
+            timestamp: data.timestamp,
           },
         ]);
       }
@@ -75,10 +76,15 @@ function ChatArea({ userType }) {
     if (!previousMessage || previousMessage.sender !== msg.sender) {
       groupedMessages.push({
         sender: msg.sender,
-        messages: [msg.text],
+        messages: [
+          { text: msg.text, timestamp: msg.timestamp }, // Include timestamp
+        ],
       });
     } else {
-      groupedMessages[groupedMessages.length - 1].messages.push(msg.text);
+      groupedMessages[groupedMessages.length - 1].messages.push({
+        text: msg.text,
+        timestamp: msg.timestamp, // Include timestamp
+      });
     }
   });
 
