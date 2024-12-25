@@ -365,14 +365,11 @@ def mark_notification_as_read(request, notification_id):
 def update_user_profile(request, user_id):
     try:
         user = User.objects.get(id=user_id)
-        
-        print('logitude' ,request.data.get('longitude', user.longitude))
-        print('latitude' ,request.data.get('latitude', user.latitude))
-        print('location ', request.data.get('location', user.location))
-        # Update existing fields
+
         user.full_name = request.data.get('full_name', user.full_name)
         user.phone = request.data.get('phone', user.phone)
         user.gender = request.data.get('gender', user.gender)
+        user.address = request.data.get('address', user.address )
         
         # Update location-related fields
         user.location = request.data.get('location', user.location)
@@ -380,10 +377,10 @@ def update_user_profile(request, user_id):
         user.longitude = request.data.get('longitude', user.longitude)
         
         user.save()
+
         
         serializer = UserSerializer(user)
         
-        print(serializer.data) 
 
         return Response({'message': 'Profile updated successfully.', 'user': serializer.data }, status=status.HTTP_200_OK)
     except User.DoesNotExist:

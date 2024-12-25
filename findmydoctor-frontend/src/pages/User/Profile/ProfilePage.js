@@ -147,16 +147,12 @@ const ProfilePage = () => {
                     full_name: userData.name,
                     phone: userData.mobile,
                     gender: userData.gender,
-                    location: locations.address,
+                    address: userData.address,
                     latitude: locations.latitude,
                     longitude: locations.longitude,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
                 }
             );
+
             setUserData({
                 name: response.data.user.full_name,
                 gender: response.data.user.gender,
@@ -167,6 +163,7 @@ const ProfilePage = () => {
             })
             
             setSuccessMessage(response.data.message);
+            setIsEditing(false)
             setTimeout(() => setSuccessMessage(''), 3000); // Clear success message after 3 seconds
         } catch (error) {
             if (error.name === 'ValidationError') {
@@ -195,9 +192,15 @@ const ProfilePage = () => {
         <>
             <div className="section-header">
                 <h2>Personal Information</h2>
-                <button className="user-edit-button" onClick={handleEditToggle}>
-                    {isEditing ? 'Save' : 'Edit'}
-                </button>
+                {isEditing ? (
+                    <button className="user-edit-button" onClick={updateUserProfile}>
+                        Save Changes
+                    </button>
+                ) : (
+                    <button className="user-edit-button" onClick={() => setIsEditing(true)}>
+                        Edit Profile
+                    </button>
+                )}
             </div>
             <div className="info-field">
                 <label>Name:</label>
