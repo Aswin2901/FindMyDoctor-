@@ -112,13 +112,14 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 # Function to initiate Google OAuth login
 @api_view(['GET'])
 def google_login(request):
+    redirect_uri = os.getenv('OAUTH_CALLBACK', 'http://localhost:3000/oauth/callback/')
     auth_url = (
         'https://accounts.google.com/o/oauth2/auth'
         f'?response_type=code&client_id={settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}'
-        '&redirect_uri=http://localhost:3000/oauth/callback/'
+        f'&redirect_uri={redirect_uri}'
         '&scope=email profile'
-        '&access_type=offline'  
-        '&prompt=consent'       
+        '&access_type=offline'
+        '&prompt=consent'
     )
     return Response({'auth_url': auth_url})
 

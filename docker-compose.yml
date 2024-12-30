@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./findmydoctor
+      dockerfile: Dockerfile
+    volumes:
+      - ./findmydoctor:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    command: >
+      daphne -b 0.0.0.0 -p 8000 findmydoctor.asgi:application
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DJANGO_SETTINGS_MODULE=findmydoctor.settings
+      - SITE_URL=http://localhost:8000
+      - OAUTH_CALLBACK=http://host.docker.internal:3000/oauth/callback/
+
+  frontend:
+    build:
+      context: ./findmydoctor-frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./findmydoctor-frontend:/app
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8000
+
+  redis:
+    image: redis:6.2
+    ports:
+      - "6379:6379"
