@@ -52,16 +52,19 @@ def send_otp_email(email, otp):
 def register_user(request):
     email = request.data.get('email')
 
+    if not email:
+        return JsonResponse({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
 
     otp = generate_otp()
-    cache.set(email, otp, timeout=300) 
-    print(f"OTP cached for {email}: {otp}") 
+
+    # Cache the OTP for 5 minutes
+    cache.set(email, otp, timeout=300)
+    print(f"OTP cached for {email}: {otp}")
 
     # Send OTP to email
     send_otp_email(email, otp)
 
     return JsonResponse({'message': 'OTP sent to your email'}, status=status.HTTP_200_OK)
-
 
 # Verify OTP and register the user if OTP is valid
 @csrf_exempt
@@ -112,7 +115,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 # Function to initiate Google OAuth login
 @api_view(['GET'])
 def google_login(request):
-    redirect_uri = os.getenv('OAUTH_CALLBACK', 'http://localhost:3000/oauth/callback/')
+    redirect_uri = os.getenv('OAUTH_CALLBACK', 'https://localhost:3000/oauth/callback/')
     auth_url = (
         'https://accounts.google.com/o/oauth2/auth'
         f'?response_type=code&client_id={settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}'
